@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --animate-spin-slow: spin 16s linear infinite;
+  --animate-slide-up: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-scale-in: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shine: shine 3s linear infinite;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shine {
+  0% { background-position: 100%; }
+  100% { background-position: -100%; }
+}
+
+/* ─── Base ─────────────────────────────── */
+
+html {
+  height: 100dvh;
+}
+
+body, :is(.dark) body {
+  min-height: 100dvh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #0C0A09; /* stone-950 */
+  color: #F5F5F4; /* stone-100 */
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* ─── Surface Cards ────────────────────── */
+
+.surface, :is(.dark) .surface {
+  background-color: rgba(28, 25, 23, 0.8); /* stone-900/80 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Accent — Crema (amber-500) ───────── */
+
+.accent-bg, :is(.dark) .accent-bg {
+  background-color: #F59E0B;
+}
+
+.accent-text, :is(.dark) .accent-text {
+  color: #F59E0B;
+}
+
+.accent-border, :is(.dark) .accent-border {
+  border-color: #F59E0B;
+}
+
+/* ─── Mono ──────────── */
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ─── Scrollbar ────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb, :is(.dark) ::-webkit-scrollbar-thumb {
+  background: #292524;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover, :is(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #44403C;
+}

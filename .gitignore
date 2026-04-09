@@ -1,0 +1,11 @@
+.DS_Store
+.next
+node_modules
+dist
+tsconfig.tsbuildinfo
+.env
+.git_backup_*
+generate_history.js
+.claude
+.cursorrules
+shubhamkumarsahu.pdf

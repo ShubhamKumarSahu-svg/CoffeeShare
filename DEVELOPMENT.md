@@ -4,3 +4,4 @@
 - [2026-04-10] spartan1907 : Setup Next.js and TailwindCSS
 - [2026-04-10] spartan1907 : Configure basic project structure
 - [2026-04-10] Adiii-0909: Add WebRTC PeerJS dependencies
+- [2026-04-10] spartan1907 : Design system and glassmorphism tokens

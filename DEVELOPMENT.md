@@ -1,3 +1,4 @@
 # Development Log
 
 - [2026-04-09] Adiii-0909: Initial project setup and configuration
+- [2026-04-10] spartan1907 : Setup Next.js and TailwindCSS

@@ -11,3 +11,4 @@
 - [2026-04-11] Adiii-0909: Add Framer Motion animations
 - [2026-04-12] spartan1907 : Create PasswordField component
 - [2026-04-12] KUSHALKHATRI4691: Fix layout issues on mobile screens
+- [2026-04-12] KUSHALKHATRI4691: Implement WebRTC signaling logic

@@ -14,3 +14,4 @@
 - [2026-04-12] KUSHALKHATRI4691: Implement WebRTC signaling logic
 - [2026-04-13] Adiii-0909: Add live media streaming capabilities
 - [2026-04-13] KUSHALKHATRI4691: Design Loading and Spinner components
+- [2026-04-13] KUSHALKHATRI4691: Write unit tests for file extractors

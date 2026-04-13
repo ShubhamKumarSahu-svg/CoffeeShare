@@ -12,3 +12,4 @@
 - [2026-04-12] spartan1907 : Create PasswordField component
 - [2026-04-12] KUSHALKHATRI4691: Fix layout issues on mobile screens
 - [2026-04-12] KUSHALKHATRI4691: Implement WebRTC signaling logic
+- [2026-04-13] Adiii-0909: Add live media streaming capabilities

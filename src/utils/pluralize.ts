@@ -5,3 +5,4 @@ export function pluralize(
 ): string {
   return `${count} ${count === 1 ? singular : plural}`
 }
+// .

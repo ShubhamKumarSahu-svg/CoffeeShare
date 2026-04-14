@@ -18,3 +18,4 @@
 - [2026-04-13] ShubhamKumarSahu-svg: Integrate Canvas Confetti for completion
 - [2026-04-14] spartan1907 : Fix hydration error in DropZone component
 - [2026-04-14] Divyansh9369: Create CoffeePong minigame
+- [2026-04-14] Adiii-0909: Implement ChatDrawer for P2P messaging

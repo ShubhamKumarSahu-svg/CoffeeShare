@@ -153,3 +153,4 @@ The `TransferHistory` component (`src/components/TransferHistory.tsx`) provides 
 - Duration statistics: average, fastest, slowest transfer times
 - Status breakdown: horizontal bar chart showing distribution
 - Top file types: grouped by MIME type with total size per type
+<!-- . -->

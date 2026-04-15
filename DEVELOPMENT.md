@@ -21,3 +21,4 @@
 - [2026-04-14] Adiii-0909: Implement ChatDrawer for P2P messaging
 - [2026-04-15] Adiii-0909: Update responsive styling for ChatDrawer
 - [2026-04-15] Adiii-0909: Add Live Folder Sync (Wormhole) feature
+- [2026-04-15] Adiii-0909: Optimize WebRTC chunk sizes

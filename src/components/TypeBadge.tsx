@@ -21,3 +21,4 @@ export default function TypeBadge({ type }: { type: string }): JSX.Element {
     </div>
   )
 }
+// .

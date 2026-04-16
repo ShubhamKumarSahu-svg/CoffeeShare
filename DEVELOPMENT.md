@@ -25,3 +25,4 @@
 - [2026-04-15] spartan1907 : Add QR code generation for quick sharing
 - [2026-04-16] ShubhamKumarSahu-svg: Improve dark mode color palette
 - [2026-04-16] ShubhamKumarSahu-svg: Fix file size calculation bugs
+- [2026-04-16] ShubhamKumarSahu-svg: Add pause and resume functionality

@@ -23,3 +23,4 @@
 - [2026-04-15] Adiii-0909: Add Live Folder Sync (Wormhole) feature
 - [2026-04-15] Adiii-0909: Optimize WebRTC chunk sizes
 - [2026-04-15] spartan1907 : Add QR code generation for quick sharing
+- [2026-04-16] ShubhamKumarSahu-svg: Improve dark mode color palette

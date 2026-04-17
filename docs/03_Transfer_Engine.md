@@ -48,3 +48,4 @@ Because CoffeeShare sends multiple things over the exact same WebRTC Data Channe
 *   **Binary Payloads**: If the incoming packet is an `ArrayBuffer`, the receiver knows it is a piece of the file being transferred, and routes it directly to the File System stream. 
 
 This efficient multiplexing ensures that chat and games can run smoothly and simultaneously without corrupting the file transfer stream.
+<!-- . -->

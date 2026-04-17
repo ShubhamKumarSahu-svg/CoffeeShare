@@ -62,3 +62,4 @@ The audio/video streams are encrypted via SRTP (Secure Real-time Transport Proto
 2. **Resumable Downloads**: Storing metadata in `IndexedDB`. If the connection drops at 90%, the peers could reconnect, check the exact byte offset they left off at, and resume the slice from there.
 3. **WebRTC QoS (Quality of Service)**: Dynamically throttling the file transfer speed if the user enables the Video Camera, ensuring that the video stream (UDP) doesn't get choked out by the aggressive file transfer data channel.
 4. **Progressive Web App (PWA)**: Adding a service worker and manifest for offline-capable access and "Install to Home Screen" functionality.
+<!-- . -->

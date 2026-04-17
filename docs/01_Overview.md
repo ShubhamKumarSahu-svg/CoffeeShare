@@ -112,3 +112,4 @@ CoffeeShare uses a **Base64url slug system** for generating clean, shareable dow
 | `src/utils/crypto.ts` | AES-256-GCM key generation, export, encrypt/decrypt |
 | `src/channel.ts` | Signaling backend (Redis / In-Memory strategy pattern) |
 | `prisma/schema.prisma` | Database schema (Room, RoomParticipant, Transfer, AnalyticsEvent) |
+<!-- . -->

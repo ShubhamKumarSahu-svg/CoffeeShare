@@ -46,3 +46,4 @@ There are 4 types of NAT, and CoffeeShare must traverse all of them:
 
 4.  **Symmetric NAT**: The hardest firewall. Found in corporate networks, universities, and strict 5G cellular towers. The router creates a *completely different, randomized Public Port* for every single external server the device talks to. STUN is completely useless here, because the port Google's STUN server sees will be different from the port the peer sees.
     *   **The TURN Solution**: CoffeeShare intercepts this failure and falls back to our **Metered.ca TURN server**. The TURN server has a static, public IP. Both peers connect to the TURN server, and the TURN server simply relays the encrypted UDP packets between them. This guarantees connectivity.
+<!-- . -->

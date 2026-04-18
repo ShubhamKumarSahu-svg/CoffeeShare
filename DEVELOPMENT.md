@@ -32,3 +32,4 @@
 - [2026-04-17] KUSHALKHATRI4691: Optimize React re-renders in Downloader
 - [2026-04-18] Divyansh9369: Add sound effects for transfer completion
 - [2026-04-18] KUSHALKHATRI4691: Update README with new features
+- [2026-04-18] ShubhamKumarSahu-svg: Fix ServiceWorker caching strategy

@@ -6,3 +6,4 @@ export function pluralize(
   return `${count} ${count === 1 ? singular : plural}`
 }
 // .
+// .

@@ -210,3 +210,4 @@ Done
 With these message definitions and sequences you can implement a compatible
 uploader or downloader for CoffeeShare or adapt the protocol for other
 applications.
+<!-- . -->

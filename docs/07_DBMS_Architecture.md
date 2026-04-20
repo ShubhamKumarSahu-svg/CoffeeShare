@@ -154,3 +154,4 @@ The `TransferHistory` component (`src/components/TransferHistory.tsx`) provides 
 - Status breakdown: horizontal bar chart showing distribution
 - Top file types: grouped by MIME type with total size per type
 <!-- . -->
+<!-- . -->

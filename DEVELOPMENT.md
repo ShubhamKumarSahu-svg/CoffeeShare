@@ -37,3 +37,4 @@
 - [2026-04-19] KUSHALKHATRI4691: Implement Web Streams API
 - [2026-04-19] spartan1907 : Update toast notifications
 - [2026-04-19] Divyansh9369: Add network troubleshooting guide
+- [2026-04-20] KUSHALKHATRI4691: Test file transfers on Safari

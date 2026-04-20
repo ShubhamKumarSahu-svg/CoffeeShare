@@ -40,3 +40,4 @@
 - [2026-04-20] KUSHALKHATRI4691: Test file transfers on Safari
 - [2026-04-20] ShubhamKumarSahu-svg: Fix memory leak in peer connection
 - [2026-04-20] Divyansh9369: Enhance UI transitions and micro-animations
+- [2026-04-20] KUSHALKHATRI4691: Add copy to clipboard functionality

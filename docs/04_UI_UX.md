@@ -123,3 +123,4 @@ The call system follows the Bauhaus design strictly:
 *   **Home Button**: Visible on all screen sizes — shows only the icon on mobile (`hidden sm:inline` for text), full "Home" label on larger screens.
 *   **File List Scrolling**: When many files are selected, the `UploadFileList` component constrains to `max-h-[320px]` with `overflow-y-auto` and a custom Bauhaus scrollbar (blue thumb, red hover state).
 *   **Landing Page**: Two-column layout on desktop (`lg:flex-row`), stacked on mobile (`flex-col`), with the DropZone taking priority on mobile (order-1).
+<!-- . -->

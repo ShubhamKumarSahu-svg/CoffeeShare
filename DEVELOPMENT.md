@@ -46,3 +46,4 @@
 - [2026-04-21] spartan1907 : Fix UI z-index issues in modals
 - [2026-04-22] Adiii-0909: Update ESLint and Prettier configs
 - [2026-04-22] Adiii-0909: Refactor CSS variables for themes
+- [2026-04-22] ShubhamKumarSahu-svg: Add error boundary for graceful failures

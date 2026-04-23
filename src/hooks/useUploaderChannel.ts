@@ -1,23 +1,24 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { generateCryptoKey, exportKeyToBase64Url } from '../utils/crypto'
 
-function generateURL(slug: string): string {
+function generateURL(slug: string, secretKey?: string): string {
   const hostPrefix =
     window.location.protocol +
     '//' +
     window.location.hostname +
     (window.location.port ? ':' + window.location.port : '')
-  return `${hostPrefix}/download/${slug}`
+  let url = `${hostPrefix}/download/${slug}`
+  if (secretKey) {
+    url += `#${secretKey}`
+  }
+  return url
 }
 
 /**
  * Encode the peer ID into a short, URL-safe slug.
- * This avoids the server-side channel store entirely, making
- * the app work on serverless platforms (Vercel) where every
- * request may land on a different instance with its own memory.
  */
 function peerIdToSlug(peerId: string): string {
-  // btoa is available in browsers; we replace URL-unsafe chars.
   return btoa(peerId).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
@@ -31,11 +32,23 @@ export function useUploaderChannel(
   shortSlug: string | undefined
   longURL: string | undefined
   shortURL: string | undefined
+  cryptoKey: CryptoKey | null
 } {
-  // Also create the channel on the server for backwards-compat,
-  // but generate the share URL from the peer ID so the download
-  // page can always resolve the uploader without hitting a channel store.
-  const { isLoading, error, data } = useQuery({
+  const [cryptoKey, setCryptoKey] = useState<CryptoKey | null>(null)
+  const [secretKeyStr, setSecretKeyStr] = useState<string>('')
+
+  // Generate E2EE key once on mount
+  useEffect(() => {
+    async function initKey() {
+      const key = await generateCryptoKey()
+      const keyStr = await exportKeyToBase64Url(key)
+      setCryptoKey(key)
+      setSecretKeyStr(keyStr)
+    }
+    initKey()
+  }, [])
+
+  const { isLoading: queryLoading, error, data } = useQuery({
     queryKey: ['uploaderChannel', uploaderPeerID],
     queryFn: async () => {
       console.log(
@@ -48,18 +61,9 @@ export function useUploaderChannel(
         body: JSON.stringify({ uploaderPeerID }),
       })
       if (!response.ok) {
-        console.error(
-          '[UploaderChannel] failed to create channel:',
-          response.status,
-        )
         throw new Error('Network response was not ok')
       }
-      const data = await response.json()
-      console.log('[UploaderChannel] channel created successfully:', {
-        longSlug: data.longSlug,
-        shortSlug: data.shortSlug,
-      })
-      return data
+      return await response.json()
     },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -71,82 +75,54 @@ export function useUploaderChannel(
   const longSlug = data?.longSlug
   const shortSlug = data?.shortSlug
 
-  // Build the share URL using the peer-ID-based slug so the download
-  // page can always decode it client-side.
   const peerSlug = peerIdToSlug(uploaderPeerID)
-  const shortURL = generateURL(peerSlug)
-  const longURL = longSlug ? generateURL(longSlug) : shortURL
+  // Short URL includes the secret key hash for E2EE
+  const shortURL = secretKeyStr ? generateURL(peerSlug, secretKeyStr) : undefined
+  const longURL = longSlug && secretKeyStr ? generateURL(longSlug, secretKeyStr) : shortURL
 
   const renewMutation = useMutation({
     mutationFn: async ({ secret: s }: { secret: string }) => {
-      console.log('[UploaderChannel] renewing channel for slug', shortSlug)
       const response = await fetch('/api/renew', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug: shortSlug, secret: s }),
       })
-      if (!response.ok) {
-        console.error(
-          '[UploaderChannel] failed to renew channel',
-          response.status,
-        )
-        throw new Error('Network response was not ok')
-      }
-      const data = await response.json()
-      console.log('[UploaderChannel] channel renewed successfully')
-      return data
+      if (!response.ok) throw new Error('Network response was not ok')
+      return await response.json()
     },
   })
 
   useEffect(() => {
     if (!secret || !shortSlug) return
-
     let timeout: NodeJS.Timeout | null = null
-
     const run = (): void => {
       timeout = setTimeout(() => {
-        console.log(
-          '[UploaderChannel] scheduling channel renewal in',
-          renewInterval,
-          'ms',
-        )
         renewMutation.mutate({ secret })
         run()
       }, renewInterval)
     }
-
     run()
-
     return () => {
-      if (timeout) {
-        console.log('[UploaderChannel] clearing renewal timeout')
-        clearTimeout(timeout)
-      }
+      if (timeout) clearTimeout(timeout)
     }
   }, [secret, shortSlug, renewMutation, renewInterval])
 
   useEffect(() => {
     if (!shortSlug || !secret) return
-
     const handleUnload = (): void => {
-      console.log('[UploaderChannel] destroying channel on page unload')
-      // Using sendBeacon for best-effort delivery during page unload
       navigator.sendBeacon('/api/destroy', JSON.stringify({ slug: shortSlug }))
     }
-
     window.addEventListener('beforeunload', handleUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload)
-    }
+    return () => window.removeEventListener('beforeunload', handleUnload)
   }, [shortSlug, secret])
 
   return {
-    isLoading: false, // URL is available immediately from the peer ID
+    isLoading: !shortURL, // Wait until key and URL are fully generated
     error,
     longSlug,
     shortSlug: peerSlug,
     longURL,
     shortURL,
+    cryptoKey,
   }
 }

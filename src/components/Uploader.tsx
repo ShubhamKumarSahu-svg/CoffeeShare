@@ -56,14 +56,14 @@ export default function Uploader({
   onStop: () => void
 }): JSX.Element {
   const { peer, stop } = useWebRTCPeer()
-  const { isLoading, error, shortURL } = useUploaderChannel(peer.id)
+  const { isLoading, error, shortURL, cryptoKey } = useUploaderChannel(peer.id)
   const {
     connections,
     chatMessages,
     sendChatMessage,
     gameState,
     sendGameState,
-  } = useUploaderConnections(peer, files, password)
+  } = useUploaderConnections(peer, files, password, cryptoKey)
 
   const handleStop = useCallback(() => {
     stop()

@@ -23,6 +23,8 @@ import {
   mobileModel,
 } from 'react-device-detect'
 import { setRotating } from './useRotatingSpinner'
+import { importKeyFromBase64Url, decryptChunk } from '../utils/crypto'
+
 const cleanErrorMessage = (errorMessage: string): string =>
   errorMessage.startsWith('Could not connect to peer')
     ? 'Could not connect to the uploader. Did they close their browser?'
@@ -59,6 +61,18 @@ export function useDownloader(uploaderPeerID: string): {
   const [dataConnection, setDataConnection] = useState<DataConnection | null>(
     null,
   )
+  const [cryptoKey, setCryptoKey] = useState<CryptoKey | null>(null)
+  
+  useEffect(() => {
+    // Extract key from URL hash (e.g. #abc123key)
+    const hash = window.location.hash.substring(1)
+    if (hash) {
+      importKeyFromBase64Url(hash)
+        .then(setCryptoKey)
+        .catch((err) => console.error('[Downloader] Failed to import key:', err))
+    }
+  }, [])
+
   const [filesInfo, setFilesInfo] = useState<Array<{
     fileName: string
     size: number
@@ -284,58 +298,70 @@ export function useDownloader(uploaderPeerID: string): {
     }
 
     let chunkCountByFile: Record<string, number> = {}
+    let chunkQueue = Promise.resolve()
+
     processChunk.current = (message: z.infer<typeof ChunkMessage>) => {
-      const fileStream = fileStreamByPath[message.fileName]
-      if (!fileStream) {
-        console.error('[Downloader] no stream found for', message.fileName)
-        return
-      }
-
-      // Track chunks for e2e testing
-      if (!chunkCountByFile[message.fileName]) {
-        chunkCountByFile[message.fileName] = 0
-      }
-      chunkCountByFile[message.fileName]++
-      console.log(
-        `[Downloader] received chunk ${chunkCountByFile[message.fileName]} for ${message.fileName} (${message.offset}-${message.offset + (message.bytes as ArrayBuffer).byteLength}) final=${message.final}`,
-      )
-
-      const chunkSize = (message.bytes as ArrayBuffer).byteLength
-      setBytesDownloaded((bd) => bd + chunkSize)
-      
-      const chunkBytes = new Uint8Array(message.bytes as ArrayBuffer)
-      fileStream.enqueue(chunkBytes)
-
-      const previewWriter = previewWritersRef.current[message.fileName]
-      if (previewWriter) {
-        // Fire and forget to avoid backpressure stalling the download
-        previewWriter.write(chunkBytes).catch((err) => {
-          console.error('[Downloader] Failed to write preview chunk:', err)
-        })
-      }
-
-      // Send acknowledgment to uploader
-      const ackMessage: Message = {
-        type: MessageType.ChunkAck,
-        fileName: message.fileName,
-        offset: message.offset,
-        bytesReceived: chunkSize,
-      }
-      dataConnection.send(ackMessage)
-      console.log(
-        `[Downloader] sent ack for chunk ${chunkCountByFile[message.fileName]} (${message.offset}, ${chunkSize} bytes)`,
-      )
-
-      if (message.final) {
-        console.log(
-          `[Downloader] finished receiving ${message.fileName} after ${chunkCountByFile[message.fileName]} chunks`,
-        )
-        if (previewWriter) {
-          previewWriter.close().catch(console.error)
+      chunkQueue = chunkQueue.then(async () => {
+        const fileStream = fileStreamByPath[message.fileName]
+        if (!fileStream) {
+          console.error('[Downloader] no stream found for', message.fileName)
+          return
         }
-        fileStream.close()
-        startNextFileOrFinish()
-      }
+
+        // Track chunks for e2e testing
+        if (!chunkCountByFile[message.fileName]) {
+          chunkCountByFile[message.fileName] = 0
+        }
+        chunkCountByFile[message.fileName]++
+        
+        let chunkBytes = new Uint8Array(message.bytes as ArrayBuffer)
+        
+        if (cryptoKey) {
+          try {
+            const decrypted = await decryptChunk(message.bytes as ArrayBuffer, cryptoKey)
+            chunkBytes = new Uint8Array(decrypted)
+          } catch (e) {
+            console.error('[Downloader] failed to decrypt chunk', e)
+            return
+          }
+        }
+
+        const chunkSize = chunkBytes.byteLength
+        setBytesDownloaded((bd) => bd + chunkSize)
+        
+        fileStream.enqueue(chunkBytes)
+
+        const previewWriter = previewWritersRef.current[message.fileName]
+        if (previewWriter) {
+          // Fire and forget to avoid backpressure stalling the download
+          previewWriter.write(chunkBytes).catch((err) => {
+            console.error('[Downloader] Failed to write preview chunk:', err)
+          })
+        }
+
+        // Send acknowledgment to uploader. Note: we ack the unencrypted size to match original file boundaries.
+        const ackMessage: Message = {
+          type: MessageType.ChunkAck,
+          fileName: message.fileName,
+          offset: message.offset,
+          bytesReceived: chunkSize,
+        }
+        dataConnection.send(ackMessage)
+        console.log(
+          `[Downloader] sent ack for chunk ${chunkCountByFile[message.fileName]} (${message.offset}, ${chunkSize} bytes)`,
+        )
+
+        if (message.final) {
+          console.log(
+            `[Downloader] finished receiving ${message.fileName} after ${chunkCountByFile[message.fileName]} chunks`,
+          )
+          if (previewWriter) {
+            previewWriter.close().catch(console.error)
+          }
+          fileStream.close()
+          startNextFileOrFinish()
+        }
+      })
     }
 
     const downloads = filesInfo.map((info, i) => ({
@@ -360,7 +386,7 @@ export function useDownloader(uploaderPeerID: string): {
       .catch((err) => console.error('[Downloader] download error:', err))
 
     startNextFileOrFinish()
-  }, [dataConnection, filesInfo])
+  }, [dataConnection, filesInfo, cryptoKey])
 
   const stopDownload = useCallback(() => {
     if (dataConnection) {

@@ -15,6 +15,8 @@ import { z } from 'zod'
 import { getFileName } from '../fs'
 import { setRotating } from './useRotatingSpinner'
 
+import { encryptChunk } from '../utils/crypto'
+
 // TODO(@kern): Test for better values
 export const MAX_CHUNK_SIZE = 256 * 1024 // 256 KB
 
@@ -40,6 +42,7 @@ export function useUploaderConnections(
   peer: Peer,
   files: UploadedFile[],
   password: string,
+  cryptoKey: CryptoKey | null,
 ): {
   connections: Array<UploaderConnection>
   chatMessages: Array<{
@@ -99,7 +102,7 @@ export function useUploaderConnections(
       let currentChunkCount: number = 0
       let isUploading: boolean = false
 
-      const sendNextChunk = () => {
+      const sendNextChunk = async () => {
         if (!currentFileName || !isUploading) return
         if (!conn.open) {
           isUploading = false
@@ -116,11 +119,19 @@ export function useUploaderConnections(
           `[UploaderConnections] sending chunk ${currentChunkCount} for ${currentFileName} (${currentOffset}-${end}/${file.size}) final=${final}`,
         )
 
+        let chunkData: ArrayBuffer | Blob = file.slice(currentOffset, end)
+        if (cryptoKey) {
+          const arrayBuffer = await file.slice(currentOffset, end).arrayBuffer()
+          chunkData = await encryptChunk(arrayBuffer, cryptoKey)
+        }
+
+        if (!isUploading || !conn.open) return
+
         conn.send({
           type: MessageType.Chunk,
           fileName: currentFileName,
           offset: currentOffset,
-          bytes: file.slice(currentOffset, end),
+          bytes: chunkData,
           final,
         })
 

@@ -43,6 +43,7 @@ export default function CoffeePong({
     paddle1: number
     paddle2: number
     score: [number, number]
+    lastSyncTime?: number
   }>({
     status: 'waiting',
     countdownValue: null,
@@ -112,11 +113,11 @@ export default function CoffeePong({
       if (gameState.type === 'paddle') {
         hostState.current.paddle2 = gameState.paddle2
         if (gameState.p2Ready) hostState.current.p2Ready = true
-        
-        setRenderState((prev) => ({ 
-          ...prev, 
-          paddle2: gameState.paddle2, 
-          p2Ready: hostState.current.p2Ready 
+
+        setRenderState((prev) => ({
+          ...prev,
+          paddle2: gameState.paddle2,
+          p2Ready: hostState.current.p2Ready
         }))
 
         if (
@@ -352,16 +353,16 @@ export default function CoffeePong({
                 {/* Ball */}
                 {(renderState.status === 'playing' ||
                   renderState.status === 'waiting') && (
-                  <div
-                    className="absolute bg-stone-100 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                    style={{
-                      width: BALL_SIZE,
-                      height: BALL_SIZE,
-                      left: renderState.ball.x,
-                      top: renderState.ball.y,
-                    }}
-                  />
-                )}
+                    <div
+                      className="absolute bg-stone-100 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                      style={{
+                        width: BALL_SIZE,
+                        height: BALL_SIZE,
+                        left: renderState.ball.x,
+                        top: renderState.ball.y,
+                      }}
+                    />
+                  )}
 
                 {/* Overlays */}
                 {renderState.status === 'waiting' && (

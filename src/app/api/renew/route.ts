@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getOrCreateChannelRepo } from '../../../channel'
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const { slug, secret } = await request.json()
-
+  let body: any = {}
+  try {
+    body = await request.json()
+  } catch (e) {
+    // Ignore JSON parse error for empty body
+  }
+  const { slug, secret } = body
   if (!slug) {
     return NextResponse.json({ error: 'Slug is required' }, { status: 400 })
   }

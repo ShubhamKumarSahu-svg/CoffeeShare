@@ -10,6 +10,17 @@ function generateURL(slug: string): string {
   return `${hostPrefix}/download/${slug}`
 }
 
+/**
+ * Encode the peer ID into a short, URL-safe slug.
+ * This avoids the server-side channel store entirely, making
+ * the app work on serverless platforms (Vercel) where every
+ * request may land on a different instance with its own memory.
+ */
+function peerIdToSlug(peerId: string): string {
+  // btoa is available in browsers; we replace URL-unsafe chars.
+  return btoa(peerId).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
 export function useUploaderChannel(
   uploaderPeerID: string,
   renewInterval = 60_000,
@@ -21,6 +32,9 @@ export function useUploaderChannel(
   longURL: string | undefined
   shortURL: string | undefined
 } {
+  // Also create the channel on the server for backwards-compat,
+  // but generate the share URL from the peer ID so the download
+  // page can always resolve the uploader without hitting a channel store.
   const { isLoading, error, data } = useQuery({
     queryKey: ['uploaderChannel', uploaderPeerID],
     queryFn: async () => {
@@ -56,8 +70,12 @@ export function useUploaderChannel(
   const secret = data?.secret
   const longSlug = data?.longSlug
   const shortSlug = data?.shortSlug
-  const longURL = longSlug ? generateURL(longSlug) : undefined
-  const shortURL = shortSlug ? generateURL(shortSlug) : undefined
+
+  // Build the share URL using the peer-ID-based slug so the download
+  // page can always decode it client-side.
+  const peerSlug = peerIdToSlug(uploaderPeerID)
+  const shortURL = generateURL(peerSlug)
+  const longURL = longSlug ? generateURL(longSlug) : shortURL
 
   const renewMutation = useMutation({
     mutationFn: async ({ secret: s }: { secret: string }) => {
@@ -124,10 +142,10 @@ export function useUploaderChannel(
   }, [shortSlug, secret])
 
   return {
-    isLoading,
+    isLoading: false, // URL is available immediately from the peer ID
     error,
     longSlug,
-    shortSlug,
+    shortSlug: peerSlug,
     longURL,
     shortURL,
   }

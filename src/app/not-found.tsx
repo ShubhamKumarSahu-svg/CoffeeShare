@@ -5,7 +5,7 @@ import ReturnHome from '../components/ReturnHome'
 import TitleText from '../components/TitleText'
 
 export const metadata = {
-  title: 'PizzaShare - 404: Not Found',
+  title: 'CoffeeShare - 404: Not Found',
   description: 'This share link does not exist or has expired.',
 }
 

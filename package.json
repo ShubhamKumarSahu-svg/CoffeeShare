@@ -1,13 +1,13 @@
 {
-  "name": "pizzashare",
+  "name": "coffeeshare",
   "version": "2.0.0",
   "description": "Free peer-to-peer file transfers in your browser — powered by WebRTC.",
-  "author": "Alex Kern <alex@kern.io> (http://kern.io)",
+  "author": "ShubhamKumarSahu-svg",
   "license": "BSD-3-Clause",
-  "homepage": "https://github.com/kern/filepizza",
+  "homepage": "https://github.com/ShubhamKumarSahu-svg/CoffeeShare",
   "scripts": {
     "dev": "next",
-    "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
+    "build": "next build",
     "start": "next start",
     "start:peerjs": "./bin/peerjs.js",
     "lint:check": "eslint 'src/**/*.ts[x]'",
@@ -21,10 +21,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:kern/filepizza.git"
+    "url": "https://github.com/ShubhamKumarSahu-svg/CoffeeShare.git"
   },
   "bugs": {
-    "url": "https://github.com/kern/filepizza/issues"
+    "url": "https://github.com/ShubhamKumarSahu-svg/CoffeeShare/issues"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",

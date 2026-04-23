@@ -153,3 +153,4 @@ A persistent DBMS-powered dashboard accessible via a floating Database icon (bot
 See [Chapter 7: DBMS Architecture](./07_DBMS_Architecture.md) for the full schema and SQL equivalents.
 <!-- . -->
 <!-- . -->
+<!-- . -->

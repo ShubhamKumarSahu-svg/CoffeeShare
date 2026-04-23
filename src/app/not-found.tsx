@@ -12,7 +12,7 @@ export const metadata = {
 export default async function NotFound(): Promise<JSX.Element> {
   return (
     <div className="flex flex-col items-center space-y-6 py-14 max-w-xl mx-auto animate-fade-in">
-      <Spinner direction="down" />
+      <Spinner />
       <Wordmark />
       <TitleText>
         404 — This share link doesn&apos;t exist or has expired.

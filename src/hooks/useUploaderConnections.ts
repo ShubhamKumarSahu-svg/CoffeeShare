@@ -329,7 +329,7 @@ export function useUploaderConnections(
                 return {
                   ...draft,
                   status: UploaderConnectionStatus.Uploading,
-                  uploadingFileName: currentFileName,
+                  uploadingFileName: currentFileName ?? undefined,
                   uploadingOffset: currentOffset,
                   acknowledgedBytes: 0,
                   currentFileProgress: 0,

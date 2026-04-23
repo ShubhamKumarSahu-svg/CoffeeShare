@@ -46,7 +46,7 @@ export default function ChatDrawer({
     setInputText('')
   }
 
-  if (typeof document === 'undefined') return null
+  if (typeof document === 'undefined') return <></>
 
   return createPortal(
     <>

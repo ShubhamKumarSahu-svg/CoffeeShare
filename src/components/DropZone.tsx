@@ -1,6 +1,6 @@
 import React, { JSX, useState, useCallback, useEffect, useRef } from 'react'
 import { extractFileList } from '../fs'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Coffee, FolderSync } from 'lucide-react'
 
 export default function DropZone({
@@ -74,11 +74,13 @@ export default function DropZone({
         return
       }
 
-      const dirHandle = await window.showDirectoryPicker()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dirHandle = await (window as any).showDirectoryPicker()
       const files: File[] = []
 
-      async function readDirectory(dirHandle: FileSystemDirectoryHandle, path: string = '') {
-        for await (const entry of dirHandle.values()) {
+      const readDirectory = async (dir: FileSystemDirectoryHandle, path: string = '') => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for await (const entry of (dir as any).values()) {
           if (entry.kind === 'file') {
             const fileHandle = entry as FileSystemFileHandle
             const file = await fileHandle.getFile()

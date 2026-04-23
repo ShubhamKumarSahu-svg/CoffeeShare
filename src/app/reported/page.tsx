@@ -7,7 +7,7 @@ import ReturnHome from '../../components/ReturnHome'
 export default function ReportedPage(): JSX.Element {
   return (
     <div className="flex flex-col items-center space-y-6 py-14 max-w-md mx-auto animate-fade-in">
-      <Spinner direction="down" />
+      <Spinner />
       <Wordmark />
 
       <TitleText>This share has been halted.</TitleText>

@@ -8,7 +8,7 @@ import UnlockButton from './UnlockButton'
 import Loading from './Loading'
 import UploadFileList from './UploadFileList'
 import DownloadButton from './DownloadButton'
-import StopButton from './StopButton'
+
 import ProgressBar from './ProgressBar'
 import TitleText from './TitleText'
 import ReturnHome from './ReturnHome'

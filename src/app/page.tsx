@@ -23,7 +23,7 @@ import AddFilesButton from '../components/AddFilesButton'
 function PageWrapper({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <div className="flex flex-col items-center space-y-6 py-14 max-w-xl mx-auto px-5 animate-fade-in">
-      <Spinner direction="up" />
+      <Spinner />
       <Wordmark />
       {children}
     </div>

@@ -48,6 +48,16 @@ Browsers sit behind routers and NATs (Network Address Translation), meaning they
 
 ---
 
+## 🔒 Zero-Knowledge End-to-End Encryption (E2EE)
+CoffeeShare now features true zero-knowledge encryption using the browser's native Web Crypto API.
+1. **Key Generation**: When you select a file, your browser generates a highly secure 256-bit `AES-GCM` encryption key.
+2. **URL Hash Storage**: This key is appended to the share link as a URL fragment (e.g., `#<key>`). By design, browsers **never** send the `#hash` portion of a URL to any server. Vercel, the TURN relays, and your ISP cannot see this key.
+3. **On-the-fly Encryption**: Before any 256KB chunk is sent through WebRTC, it is dynamically encrypted.
+4. **Decryption**: The downloader extracts the key from the URL hash and dynamically decrypts incoming chunks before reconstructing the file.
+This means even if a server intercepts your packets, they will only see AES-encrypted gibberish!
+
+---
+
 ## 🛠️ Technology Stack
 * **Frontend Framework**: Next.js 15 (React 19)
 * **Styling**: TailwindCSS & Framer Motion

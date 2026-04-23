@@ -17,8 +17,8 @@ import { setRotating } from './useRotatingSpinner'
 
 import { encryptChunk } from '../utils/crypto'
 
-// TODO(@kern): Test for better values
-export const MAX_CHUNK_SIZE = 256 * 1024 // 256 KB
+// 64 KB (lowered for game state interleaving & less jitter)
+export const MAX_CHUNK_SIZE = 64 * 1024 
 
 export function isFinalChunk(offset: number, fileSize: number): boolean {
   return offset + MAX_CHUNK_SIZE >= fileSize
@@ -101,70 +101,81 @@ export function useUploaderConnections(
       let currentOffset: number = 0
       let currentChunkCount: number = 0
       let isUploading: boolean = false
+      let isSending: boolean = false
 
       const sendNextChunk = async () => {
-        if (!currentFileName || !isUploading) return
-        if (!conn.open) {
-          isUploading = false
-          return
-        }
-        const file = filesRef.current.find((f) => getFileName(f) === currentFileName)
-        if (!file) return
-
-        const end = Math.min(file.size, currentOffset + MAX_CHUNK_SIZE)
-        const final = isFinalChunk(currentOffset, file.size)
-        currentChunkCount++
-
-        console.log(
-          `[UploaderConnections] sending chunk ${currentChunkCount} for ${currentFileName} (${currentOffset}-${end}/${file.size}) final=${final}`,
-        )
-
-        let chunkData: ArrayBuffer | Blob = file.slice(currentOffset, end)
-        if (cryptoKey) {
-          const arrayBuffer = await file.slice(currentOffset, end).arrayBuffer()
-          chunkData = await encryptChunk(arrayBuffer, cryptoKey)
-        }
-
-        if (!isUploading || !conn.open) return
-
-        conn.send({
-          type: MessageType.Chunk,
-          fileName: currentFileName,
-          offset: currentOffset,
-          bytes: chunkData,
-          final,
-        })
-
-        currentOffset = end
-
-        if (final) {
-          isUploading = false
-        }
-
-        updateConnection((draft) => {
-          if (final) {
-            console.log(
-              '[UploaderConnections] completed file',
-              currentFileName,
-              '- file',
-              draft.completedFiles + 1,
-              'of',
-              draft.totalFiles,
-            )
-            return {
-              ...draft,
-              status: UploaderConnectionStatus.Ready,
-              completedFiles: draft.completedFiles + 1,
-              currentFileProgress: 0,
+        if (isSending) return
+        isSending = true
+        
+        try {
+          while (isUploading && conn.open && currentFileName) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const dataChannel = (conn as any).dataChannel
+            // Max 2MB buffer to prevent overflow but maintain pipelined speed
+            if (dataChannel && dataChannel.bufferedAmount > 2 * 1024 * 1024) {
+              break
             }
-          } else {
-            return {
-              ...draft,
-              uploadingOffset: end,
+
+            const file = filesRef.current.find((f) => getFileName(f) === currentFileName)
+            if (!file) break
+            if (currentOffset >= file.size) break
+
+            const end = Math.min(file.size, currentOffset + MAX_CHUNK_SIZE)
+            const final = isFinalChunk(currentOffset, file.size)
+            
+            const chunkOffset = currentOffset
+            currentOffset = end
+            currentChunkCount++
+
+            // Only log every 50 chunks to prevent console spam
+            if (currentChunkCount % 50 === 0 || final) {
+              console.log(
+                `[UploaderConnections] sending chunk ${currentChunkCount} for ${currentFileName} (${chunkOffset}-${end}/${file.size}) final=${final}`,
+              )
+            }
+
+            let chunkData: ArrayBuffer | Blob = file.slice(chunkOffset, end)
+            if (cryptoKey) {
+              const arrayBuffer = await file.slice(chunkOffset, end).arrayBuffer()
+              chunkData = await encryptChunk(arrayBuffer, cryptoKey)
+            }
+
+            if (!isUploading || !conn.open) break
+
+            conn.send({
+              type: MessageType.Chunk,
+              fileName: currentFileName,
+              offset: chunkOffset,
+              bytes: chunkData,
+              final,
+            })
+
+            if (final) {
+              isUploading = false
+              updateConnection((draft) => {
+                console.log(
+                  '[UploaderConnections] completed file',
+                  currentFileName,
+                  '- file',
+                  draft.completedFiles + 1,
+                  'of',
+                  draft.totalFiles,
+                )
+                return {
+                  ...draft,
+                  status: UploaderConnectionStatus.Ready,
+                  completedFiles: draft.completedFiles + 1,
+                  currentFileProgress: 0,
+                }
+              })
+              break
             }
           }
-        })
+        } finally {
+          isSending = false
+        }
       }
+      // (Removed dangling updateConnection block)
       const newConn = {
         status: UploaderConnectionStatus.Pending,
         dataConnection: conn,

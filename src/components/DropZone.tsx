@@ -1,7 +1,7 @@
 import React, { JSX, useState, useCallback, useEffect, useRef } from 'react'
 import { extractFileList } from '../fs'
 import { motion } from 'framer-motion'
-import { Coffee, FolderSync } from 'lucide-react'
+import { FolderSync } from 'lucide-react'
 
 export default function DropZone({
   onDrop,
@@ -130,47 +130,41 @@ export default function DropZone({
       <motion.div
         layoutId="upload-container"
         id="drop-zone-button"
-        className={`group relative block cursor-pointer w-full max-w-lg py-12 px-8 rounded-3xl transition-colors duration-300 ease-out outline-none border-2 ${isDragging
-          ? 'border-amber-500 bg-amber-500/10'
-          : 'border-dashed border-stone-700 bg-transparent hover:bg-stone-900/40 hover:border-stone-600'
+        className={`group relative block cursor-pointer w-full max-w-sm py-16 px-8 rounded-3xl transition-colors duration-300 ease-out outline-none border-[3px] ${isDragging
+          ? 'border-[#f37021] bg-[#f37021]/10'
+          : 'border-dotted border-stone-500/50 bg-[#32323e] hover:bg-[#383846] hover:border-stone-500/80'
           }`}
         onClick={handleClick}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-6">
           <motion.div
             animate={{ scale: isDragging ? 1.1 : 1 }}
-            className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors duration-300 ${isDragging
-              ? 'bg-amber-500 text-stone-950'
-              : 'bg-stone-800 text-stone-400 group-hover:text-stone-300'
+            className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${isDragging
+              ? 'border-[#f37021] text-[#f37021] bg-[#f37021]/20'
+              : 'border-[#f37021] text-[#f37021] bg-transparent group-hover:bg-[#f37021]/10'
               }`}
           >
-            <Coffee className="w-6 h-6" />
+            <span className="text-3xl font-light leading-none mb-1">+</span>
           </motion.div>
           <div className="text-center space-y-2">
-            <span className="block text-lg font-medium text-stone-200">
+            <span className="block text-[1.1rem] font-medium text-stone-200 leading-snug">
               {isDragging ? (
-                'Drop to start brewing'
+                'Drop to start sharing'
               ) : (
                 <>
-                  Drop a file or{' '}
-                  <span className="text-amber-500 font-semibold">
-                    click to browse
-                  </span>
+                  Click to browse or drag files<br/>here to start sharing
                 </>
               )}
             </span>
-            <span className="block text-sm text-stone-500 font-medium">
-              Supports any file type up to 5GB (Peer-to-Peer)
-            </span>
-            <div className="flex justify-center mt-6">
+            <div className="flex justify-center mt-6 pt-4">
               <button
                 onClick={handleWormholeClick}
                 className="flex items-center gap-2 px-4 py-2 bg-stone-800/80 hover:bg-stone-700/80 border border-stone-600 rounded-xl text-stone-300 transition-colors text-sm font-semibold z-10"
               >
-                <FolderSync className="w-4 h-4 text-amber-500" />
-                Live Folder Sync (Wormhole)
+                <FolderSync className="w-4 h-4 text-[#f37021]" />
+                Live Folder Sync
               </button>
             </div>
           </div>

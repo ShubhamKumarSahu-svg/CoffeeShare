@@ -199,16 +199,21 @@ export default function CoffeePong({
         score: [...state.score],
       })
 
-      sendGameState({
-        type: 'sync',
-        status: state.status,
-        countdown: state.countdownValue,
-        p1Ready: state.p1Ready,
-        p2Ready: state.p2Ready,
-        ball: state.ball,
-        paddle1: state.paddle1,
-        score: state.score,
-      })
+      // Throttle network sync to ~30 FPS (33ms) to prevent flooding DataChannel
+      const now = Date.now()
+      if (now - (hostState.current.lastSyncTime || 0) > 33) {
+        hostState.current.lastSyncTime = now
+        sendGameState({
+          type: 'sync',
+          status: state.status,
+          countdown: state.countdownValue,
+          p1Ready: state.p1Ready,
+          p2Ready: state.p2Ready,
+          ball: state.ball,
+          paddle1: state.paddle1,
+          score: state.score,
+        })
+      }
 
       animationFrameId = requestAnimationFrame(gameLoop)
     }
@@ -230,6 +235,8 @@ export default function CoffeePong({
     return () => cancelAnimationFrame(animationFrameId)
   }, [currentUserRole, isOpen, sendGameState])
 
+  const lastMouseSyncTime = useRef(0)
+
   const handleMouseMove = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ) => {
@@ -243,7 +250,12 @@ export default function CoffeePong({
       setRenderState((prev) => ({ ...prev, paddle1: relativeY }))
     } else {
       setRenderState((prev) => {
-        sendGameState({ type: 'paddle', paddle2: relativeY, p2Ready: prev.p2Ready })
+        const now = Date.now()
+        // Throttle mouse moves to ~30 FPS (33ms)
+        if (now - lastMouseSyncTime.current > 33) {
+          lastMouseSyncTime.current = now
+          sendGameState({ type: 'paddle', paddle2: relativeY, p2Ready: prev.p2Ready })
+        }
         return { ...prev, paddle2: relativeY }
       })
     }

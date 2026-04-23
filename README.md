@@ -1,137 +1,59 @@
-# ☕ CoffeeShare
+# CoffeeShare ☕
 
-> **High-Performance Peer-to-Peer File Sharing & Live Media Sync for the Modern Web**
+CoffeeShare is a modern, high-performance web application that enables fast, secure, and direct peer-to-peer (P2P) file sharing directly from your browser. There are no file size limits, no server-side storage, and no sign-ups required.
 
-CoffeeShare is a lightning-fast, highly secure, and beautifully designed file-sharing application that utilizes WebRTC to send files directly from one browser to another. By eliminating the need for intermediate storage servers, CoffeeShare offers infinite file size limits, robust end-to-end encryption, and unparalleled privacy.
+## 🚀 How It Works (Project Overview)
 
-Whether you're sharing a quick PDF, syncing a massive project directory, or streaming live media across the globe, CoffeeShare handles it directly, securely, and seamlessly.
+CoffeeShare operates by establishing a direct connection between the uploader's browser and the downloader's browser. When you drop a file into CoffeeShare, the file is never uploaded to a central server. Instead, CoffeeShare generates a unique secure share link. Once the recipient opens the link, the two browsers connect directly, and the file is streamed across the internet.
 
----
-
-## ✨ Comprehensive Feature Set
-
-### 🚀 Core Architecture
-- **True Peer-to-Peer (P2P)**: Files are transferred directly between the sender and receiver using WebRTC. Your data never touches a centralized server, ensuring absolute privacy.
-- **Infinite File Limits**: Since no server storage is required, you are only limited by your local machine's capabilities. Effortlessly transfer 5GB, 10GB, or even larger files.
-- **End-to-End Encryption**: Every transfer is automatically secured using WebRTC's Datagram Transport Layer Security (DTLS) protocol.
-- **Streaming Downloads**: Powered by advanced Service Workers (`sw.js`) and the Web Streams API. Large files stream directly to the recipient's disk instead of bloating the browser's RAM, preventing crashes on massive transfers.
-
-### 📁 Advanced Functionality
-- **Live Folder Sync (Wormhole)**: Don't just share individual files—drag and drop entire directories. CoffeeShare will recursively parse and sync the entire folder structure to the receiver.
-- **Live Media Streaming**: Send a video or audio file and allow the receiver to stream and preview it dynamically in real-time as it transfers.
-- **Multi-File Batching**: Upload multiple disparate files at once; the recipient receives them cleanly packaged.
-- **Secure Password Protection**: For highly sensitive transfers, add an optional cryptographically verified password that the receiver must input before the connection can be established.
-- **QR Code Connectivity**: Easily bridge the gap between desktop and mobile. Instantly share your unique download URL via dynamically generated QR codes.
-
-### 🎨 Premium UI & User Experience
-- **Dark Mode & Glassmorphism**: Designed with a sleek, premium, dark-native aesthetic utilizing modern glassmorphism transparency, vivid accent colors, and custom typography.
-- **Framer Motion Micro-Animations**: Fluid transitions, hover effects, and spring animations provide an interactive and deeply satisfying user experience.
-- **Real-Time Telemetry**: Monitor your network performance with live transfer speeds (MB/s), percentage tracking, and detailed progress bars.
-- **Interactive Mini-games (CoffeePong)**: Transferring a massive file? Keep yourself entertained by playing a fully synchronized game of multiplayer Ping-Pong directly against the person you're sharing the file with while you wait!
-- **P2P Chat**: A built-in real-time chat drawer allows the sender and receiver to communicate directly over the WebRTC data channel.
+### Start-to-End Flow:
+1. **Upload Initiation**: A user drags and drops a file (or folder) into the browser.
+2. **Signaling & Link Generation**: The application communicates with a PeerJS signaling server to get a unique WebRTC `peerID`. This ID is embedded into a shareable link (e.g., `coffeeshare.app/download/<encoded-peer-id>`).
+3. **Sharing**: The uploader shares this link with the recipient. The uploader MUST keep their browser tab open.
+4. **Peer Discovery**: The downloader opens the link. The app extracts the uploader's `peerID` and uses the signaling server to initiate a connection to the uploader.
+5. **Direct Transfer**: WebRTC establishes a direct connection. The file is read in chunks using the browser's File API and streamed through a WebRTC `RTCDataChannel` to the downloader, where it is dynamically reconstructed and downloaded using `StreamSaver.js`.
 
 ---
 
-## 🛠 Technology Stack
+## 🗄️ Database Management System (DBMS) Integration
 
-CoffeeShare is built on the bleeding edge of modern web development:
+While CoffeeShare is fundamentally a serverless P2P app, it relies on database concepts for managing share links (Channels) when configured with a backend.
 
-| Technology | Purpose |
-|---|---|
-| **Next.js 15 (App Router)** | Full-stack React framework providing a robust architectural backbone. |
-| **React 19** | Modern UI component rendering and concurrent features. |
-| **Tailwind CSS v4** | Utility-first styling engine, heavily customized for our glassmorphism design system. |
-| **TypeScript** | Strict type safety, ensuring robust and error-free code at scale. |
-| **PeerJS / WebRTC** | Abstraction layer over raw WebRTC, handling ICE negotiations and data channels. |
-| **Framer Motion** | Physics-based animation library driving all UI transitions and micro-interactions. |
-| **Service Workers** | Background scripts intercepting network requests to enable infinite streaming downloads. |
+* **Key-Value Store (Redis)**: CoffeeShare implements a `RedisChannelRepo` using `ioredis`. Redis serves as an extremely fast, in-memory data structure store used to map user-friendly short URLs (e.g., `hxkn68wv`) and long URLs (e.g., `spicy-cheese-pizza`) to WebRTC Peer IDs.
+* **Concurrency & Uniqueness**: The backend generates random slugs and verifies their uniqueness in the database before assigning them (`generateShortSlugUntilUnique`).
+* **TTL (Time To Live)**: To ensure data doesn't accumulate forever, Redis keys are set with an automatic expiration time (TTL) of 1 hour (`config.channel.ttl`). This automatically cleans up stale channels, acting as an automated garbage collector for the database.
+* **In-Memory Fallback**: For environments without Redis (like serverless Vercel deployments), the system seamlessly falls back to either a `MemoryChannelRepo` (using standard JavaScript `Map` structures) or encodes the state directly into the URL (Base64 encoding), completely bypassing the need for database persistence.
 
 ---
 
-## 🚀 Getting Started
+## 🌐 Computer Networks Concepts
 
-### Prerequisites
-- Node.js 18.0 or higher
-- npm, pnpm, or yarn
+CoffeeShare is heavily built on advanced Computer Networking principles.
 
-### Installation & Local Development
+### 1. WebRTC (Web Real-Time Communication)
+WebRTC is the backbone of CoffeeShare. It allows audio, video, and data to be sent directly across browsers without an intermediary. CoffeeShare utilizes the `RTCDataChannel` API specifically for low-latency, reliable binary file transfers.
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ShubhamKumarSahu-svg/CoffeeShare.git
-   cd coffeeshare
-   ```
+### 2. Signaling
+Before two peers can connect directly, they need to know how to reach each other. CoffeeShare uses a signaling server (via `PeerJS`) to exchange **SDP (Session Description Protocol)** data. SDP contains information about media formats, protocols, and network routing. Once this handshake is complete, the signaling server steps out of the way.
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### 3. NAT Traversal (ICE, STUN, & TURN)
+Browsers sit behind routers and NATs (Network Address Translation), meaning they don't usually have public IP addresses.
+* **STUN (Session Traversal Utilities for NAT)**: CoffeeShare uses Google's public STUN servers (`stun:stun.l.google.com:19302`) to allow the browser to discover its own public IP address and port mapping.
+* **TURN (Traversal Using Relays around NAT)**: In restrictive networks (like corporate firewalls or symmetric NATs) where direct connections fail, CoffeeShare can fall back to a TURN server (`coturn`). The TURN server acts as a relay, forwarding packets between peers when P2P routing is impossible.
+* **ICE (Interactive Connectivity Establishment)**: ICE is the framework that automatically tests all possible connection paths (local IP, STUN public IP, TURN relay) and selects the most efficient route for the file transfer.
 
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open in browser:**
-   Navigate to `http://localhost:3000` to start sharing!
-
-### Building for Production
-
-To create an optimized production build:
-```bash
-npm run build
-npm start
-```
+### 4. Application-Layer Protocols
+* **WebSockets**: Used by the signaling server to maintain a persistent connection for instant messaging and connection handshakes.
+* **Stream Chunking**: Large files cannot be sent in a single burst. The file is divided into `256 KB` chunks at the application layer. Each chunk is sent sequentially, acknowledged (`ChunkAck`), and reassembled at the destination.
 
 ---
 
-## ⚙️ Configuration & Environment Variables
+## 🛠️ Technology Stack
+* **Frontend Framework**: Next.js 15 (React 19)
+* **Styling**: TailwindCSS & Framer Motion
+* **Networking**: WebRTC & PeerJS
+* **File Handling**: StreamSaver.js (Service Workers)
+* **Storage (Optional)**: Redis
 
-CoffeeShare works perfectly out-of-the-box, but can be configured for custom deployments:
-
-| Variable | Description | Default |
-|---|---|---|
-| `REDIS_URL` | Redis connection string for persistent channel metadata (Optional) | In-memory fallback |
-| `COTURN_ENABLED` | Enable custom TURN server support for strict NAT traversal | `false` |
-| `TURN_HOST` | Custom TURN server hostname | `127.0.0.1` |
-| `TURN_REALM` | Custom TURN credential realm | `file.pizza` |
-| `STUN_SERVER` | Custom STUN server URL for peer discovery | `stun:stun.l.google.com:19302` |
-
----
-
-## ❓ Frequently Asked Questions
-
-**How does CoffeeShare achieve infinite file sizes?**
-Because CoffeeShare uses a P2P data channel, the file is never fully loaded into a server's memory or database. We utilize the Web Streams API combined with a Service Worker to read the file in small chunks from the sender's disk, send it over the network, and immediately write it to the receiver's disk.
-
-**What happens if I close my browser tab during a transfer?**
-Since the connection is directly between your browser and the recipient's browser, closing the tab will immediately sever the WebRTC connection and halt the transfer. You must keep the tab open until the transfer reaches 100%.
-
-**Can multiple people download my file at the same time?**
-Yes! WebRTC supports a mesh topology. You can share your unique URL with multiple people, and your browser will initiate separate P2P connections to stream the file to all of them simultaneously (bounded by your local upload bandwidth).
-
-**Why does my connection sometimes fail?**
-While STUN servers successfully connect peers ~86% of the time, highly restrictive corporate or school firewalls (Symmetric NATs) may block direct P2P connections. In these rare edge cases, a TURN server (relay server) is required.
-
----
-
-## 👨‍💻 Core Team & Contributors
-
-- **ShubhamKumarSahu-svg** - Full-Stack Lead
-- **Adiii-0909** - Frontend Developer
-- **Chahat Kumar** - Backend/WebRTC Developer
-- **Divyansh9369** - UI/UX Designer
-- **KUSHALKHATRI4691** - QA Engineer
-
----
-
-## 📄 License
-
-This project is licensed under the [BSD 3-Clause License](LICENSE).
-
----
-
-<div align="center">
-  <b>Share files instantly. Share files securely.</b><br>
-  <i>Enjoy your CoffeeShare. ☕</i>
-</div>
+## 📝 License
+BSD-3-Clause License

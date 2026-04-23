@@ -49,3 +49,4 @@
 - [2026-04-22] ShubhamKumarSahu-svg: Add error boundary for graceful failures
 - [2026-04-22] Divyansh9369: Test P2P transfers on different networks
 - [2026-04-23] spartan1907 : Final UI polish and text changes
+- [2026-04-23] Adiii-0909: Prepare for production release

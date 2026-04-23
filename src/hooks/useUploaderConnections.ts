@@ -497,7 +497,7 @@ export function useUploaderConnections(
       peer.off('connection', listener)
       cleanupHandlers.forEach((fn) => fn())
     }
-  }, [peer, password])
+  }, [peer, password, cryptoKey])
 
   const sendChatMessage = (text: string) => {
     const msg = {

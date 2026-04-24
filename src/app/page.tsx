@@ -50,13 +50,15 @@ function InitialState({
       </div>
       
       {/* Right side: Text and features */}
-      <div className="w-full md:w-7/12 flex flex-col items-start text-left space-y-6">
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 dark:text-white leading-[1.15]">
+      <div className="w-full md:w-7/12 flex flex-col items-start text-left space-y-6 relative z-10">
+        <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-stone-900 dark:text-white leading-[1.05] drop-shadow-md">
           <StaggerText text="Share files directly" />
           <br />
-          <StaggerText text="from your device to anywhere" delay={400} />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f37021] via-[#ff985c] to-[#e0661e] drop-shadow-[0_0_20px_rgba(243,112,33,0.3)]">
+            <StaggerText text="from device to anywhere" delay={400} />
+          </span>
         </h1>
-        <p className="text-lg text-stone-500 dark:text-stone-300 leading-relaxed max-w-xl">
+        <p className="text-xl text-stone-500 dark:text-stone-300 font-medium leading-relaxed max-w-xl">
           Send files of any size directly from your device without ever storing anything online.
         </p>
         

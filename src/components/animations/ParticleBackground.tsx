@@ -51,8 +51,17 @@ export default function ParticleBackground() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 overflow-hidden pointer-events-none z-0"
+      className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-[#0c0a09]"
       aria-hidden="true"
-    />
+    >
+      {/* Dynamic glowing mesh gradient orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#f37021]/10 blur-[120px] animate-blob" />
+      <div className="absolute top-[20%] right-[-10%] w-[40%] h-[60%] rounded-full bg-[#e0661e]/10 blur-[140px] animate-blob animation-delay-2000" />
+      <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] rounded-full bg-[#f37021]/5 blur-[150px] animate-blob animation-delay-4000" />
+      <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] rounded-full bg-stone-500/10 blur-[100px] animate-blob animation-delay-6000" />
+      
+      {/* Container for animejs particles */}
+      <div className="absolute inset-0" />
+    </div>
   )
 }

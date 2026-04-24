@@ -3,14 +3,14 @@ import { JSX } from 'react'
 export default function Wordmark(): JSX.Element {
   return (
     <div
-      className="flex items-center gap-3 animate-fade-in"
+      className="flex items-center gap-3 animate-fade-in group cursor-pointer"
       aria-label="CoffeeShare logo"
       role="img"
     >
       <div className="w-10 h-10 flex items-center justify-center">
-        <svg
-          width="32"
-          height="32"
+          className="transform group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 drop-shadow-[0_0_10px_rgba(243,112,33,0.4)]"
+          width="36"
+          height="36"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -31,12 +31,12 @@ export default function Wordmark(): JSX.Element {
       </div>
       <div className="flex flex-col">
         <h1
-          className="text-xl font-bold tracking-tight text-stone-900 dark:text-white"
+          className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-stone-900 to-stone-600 dark:from-white dark:to-stone-400 drop-shadow-sm group-hover:from-[#f37021] group-hover:to-[#ff985c] transition-all duration-300"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
           CoffeeShare
         </h1>
-        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-semibold tracking-wide uppercase mt-[-2px] group-hover:text-[#f37021]/80 transition-colors">
           Making sharing simple
         </span>
       </div>

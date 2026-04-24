@@ -29,16 +29,6 @@ function PageWrapper({ children }: { children: React.ReactNode }): JSX.Element {
         <div className="flex items-center gap-3">
           <Wordmark />
         </div>
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-400 dark:text-stone-300">
-          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">Contact</a>
-          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">About</a>
-          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">Blog</a>
-          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">FAQ</a>
-          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">Privacy</a>
-          <button className="bg-[#f37021] hover:bg-[#e0661e] text-white px-5 py-2 rounded-full font-semibold transition-colors">
-            Download
-          </button>
-        </nav>
       </header>
       <main className="flex-1 flex flex-col items-center py-14 max-w-6xl w-full mx-auto px-5 relative z-10">
         {children}

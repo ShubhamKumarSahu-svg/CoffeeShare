@@ -414,7 +414,7 @@ export default function Downloader({
             onSendMessage={sendChatMessage}
             currentUserRole="downloader"
           />
-          <VideoChat isUploader={false} remotePeerId={uploaderPeerId} />
+          <VideoChat isUploader={false} remotePeerId={uploaderPeerID} />
         </>
       )}
     </>

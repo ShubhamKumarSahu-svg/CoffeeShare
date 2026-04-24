@@ -28,6 +28,8 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
     if (isOpen && !localStream) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
+          stream.getAudioTracks().forEach(track => track.enabled = micOn)
+          stream.getVideoTracks().forEach(track => track.enabled = camOn)
           setLocalStream(stream)
           if (localVideoRef.current) localVideoRef.current.srcObject = stream
           
@@ -42,7 +44,7 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
         })
         .catch(err => console.error("Failed to get local stream", err))
     }
-  }, [isOpen, localStream, peer, remotePeerId, isUploader])
+  }, [isOpen, localStream, peer, remotePeerId, isUploader, micOn, camOn])
 
   // Answer incoming calls
   useEffect(() => {
@@ -52,6 +54,8 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
       setIsOpen(true)
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
+          stream.getAudioTracks().forEach(track => track.enabled = micOn)
+          stream.getVideoTracks().forEach(track => track.enabled = camOn)
           setLocalStream(stream)
           if (localVideoRef.current) localVideoRef.current.srcObject = stream
           call.answer(stream)

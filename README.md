@@ -58,6 +58,26 @@ This means even if a server intercepts your packets, they will only see AES-encr
 
 ---
 
+## 🚀 Advanced P2P Features
+
+CoffeeShare goes beyond simple file transfers by utilizing the WebRTC connection for incredible secondary features:
+
+### 🎙️ Direct Voice & Video Chat
+You can start a secure, peer-to-peer video call with the person downloading your file!
+* **How it works:** CoffeeShare leverages `navigator.mediaDevices` to capture your local webcam and microphone stream. This `MediaStream` is then directly attached to the existing `PeerJS` connection via `peer.call(remoteId, stream)`.
+* **Zero Servers:** Because it piggybacks on the existing STUN/TURN WebRTC connection, the video stream goes directly from your browser to theirs with zero intermediaries and zero latency.
+
+### 📝 Real-Time Collaborative Scratchpad
+Need to share an API key, code snippet, or text notes while the file transfers?
+* **How it works:** Alongside the games (Coffee Pong, Tic-Tac-Toe), CoffeeShare includes a live collaborative text editor. It uses the `RTCDataChannel` to sync keystrokes instantly between both browsers. Because it uses the UDP-based Data Channel, it feels exactly like typing on the same physical keyboard.
+
+### 📂 Native Folder Syncing (File System Access API)
+Instead of forcing users to download `.zip` files for large folder structures, CoffeeShare uses modern web standards.
+* **How it works:** When a downloader receives a folder structure, CoffeeShare utilizes the modern **File System Access API** (`window.showDirectoryPicker()`). 
+* **Native Extraction:** The browser asks the user to pick a local folder on their hard drive. As the chunks stream in over WebRTC, the application automatically constructs the exact subdirectories and writes the binary chunks directly to the user's hard drive! 
+
+---
+
 ## 🛠️ Technology Stack
 * **Frontend Framework**: Next.js 15 (React 19)
 * **Styling**: TailwindCSS & Framer Motion

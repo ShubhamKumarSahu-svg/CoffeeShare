@@ -103,107 +103,143 @@ export function useDownloader(uploaderPeerID: string): {
   const previewWritersRef = useRef<Record<string, WritableStreamDefaultWriter<Uint8Array>>>({})
   const [livePreviewUrls, setLivePreviewUrls] = useState<Record<string, string>>({})
 
+  const retryCountRef = useRef(0)
+  const MAX_RETRIES = 3
+  const CONNECTION_TIMEOUT_MS = 12000
+
   useEffect(() => {
     if (!peer) return
-    console.log('[Downloader] connecting to uploader', uploaderPeerID)
-    const conn = peer.connect(uploaderPeerID, { reliable: true })
-    setDataConnection(conn)
 
-    const handleOpen = () => {
-      console.log('[Downloader] connection opened')
-      setIsConnected(true)
-      conn.send({
-        type: MessageType.RequestInfo,
-        browserName,
-        browserVersion,
-        osName,
-        osVersion,
-        mobileVendor,
-        mobileModel,
-      } as z.infer<typeof Message>)
-    }
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let currentConn: DataConnection | null = null
+    let cleaned = false
 
-    const handleData = (data: unknown) => {
-      try {
-        const message = decodeMessage(data)
-        console.log('[Downloader] received message', message.type)
-        switch (message.type) {
-          case MessageType.PasswordRequired:
-            setIsPasswordRequired(true)
-            if (message.errorMessage) setErrorMessage(message.errorMessage)
-            break
-          case MessageType.Info:
-            setFilesInfo(message.files)
-            setIsPasswordRequired(false)
-            break
-          case MessageType.Chunk:
-            processChunk.current?.(message)
-            setRotating(true)
-            break
-          case MessageType.Error:
-            console.error('[Downloader] received error message:', message.error)
-            setErrorMessage(message.error)
-            conn.close()
-            break
-          case MessageType.Report:
-            console.log('[Downloader] received report message, redirecting')
-            window.location.href = '/reported'
-            break
-          case MessageType.Chat:
-            setChatMessages((prev) => [
-              ...prev,
-              {
-                text: message.text,
-                sender: message.sender,
-                timestamp: message.timestamp,
-              },
-            ])
-            break
-          case MessageType.GameState:
-            setGameState(message.state)
-            break
+    const attemptConnection = () => {
+      if (cleaned) return
+      const attempt = retryCountRef.current + 1
+      console.log(`[Downloader] connection attempt ${attempt}/${MAX_RETRIES + 1} to ${uploaderPeerID}`)
+
+      const conn = peer.connect(uploaderPeerID, { reliable: true })
+      currentConn = conn
+      setDataConnection(conn)
+
+      // Set a timeout: if 'open' doesn't fire, retry
+      timeoutId = setTimeout(() => {
+        if (!cleaned && !conn.open) {
+          console.warn(`[Downloader] connection attempt ${attempt} timed out after ${CONNECTION_TIMEOUT_MS}ms`)
+          try { conn.close() } catch {}
+          
+          if (retryCountRef.current < MAX_RETRIES) {
+            retryCountRef.current++
+            attemptConnection()
+          } else {
+            setErrorMessage(
+              'Could not connect to the sender after multiple attempts. ' +
+              'The sender may have closed their browser, or your network may be blocking P2P connections.'
+            )
+          }
         }
-      } catch (err) {
-        console.error('[Downloader] error handling message:', err)
+      }, CONNECTION_TIMEOUT_MS)
+
+      const handleOpen = () => {
+        if (timeoutId) clearTimeout(timeoutId)
+        console.log('[Downloader] connection opened')
+        retryCountRef.current = 0
+        setIsConnected(true)
+        conn.send({
+          type: MessageType.RequestInfo,
+          browserName,
+          browserVersion,
+          osName,
+          osVersion,
+          mobileVendor,
+          mobileModel,
+        } as z.infer<typeof Message>)
       }
+
+      const handleData = (data: unknown) => {
+        try {
+          const message = decodeMessage(data)
+          console.log('[Downloader] received message', message.type)
+          switch (message.type) {
+            case MessageType.PasswordRequired:
+              setIsPasswordRequired(true)
+              if (message.errorMessage) setErrorMessage(message.errorMessage)
+              break
+            case MessageType.Info:
+              setFilesInfo(message.files)
+              setIsPasswordRequired(false)
+              break
+            case MessageType.Chunk:
+              processChunk.current?.(message)
+              setRotating(true)
+              break
+            case MessageType.Error:
+              console.error('[Downloader] received error message:', message.error)
+              setErrorMessage(message.error)
+              conn.close()
+              break
+            case MessageType.Report:
+              console.log('[Downloader] received report message, redirecting')
+              window.location.href = '/reported'
+              break
+            case MessageType.Chat:
+              setChatMessages((prev) => [
+                ...prev,
+                {
+                  text: message.text,
+                  sender: message.sender,
+                  timestamp: message.timestamp,
+                },
+              ])
+              break
+            case MessageType.GameState:
+              setGameState(message.state)
+              break
+          }
+        } catch (err) {
+          console.error('[Downloader] error handling message:', err)
+        }
+      }
+
+      const handleClose = () => {
+        console.log('[Downloader] connection closed')
+        setRotating(false)
+        setDataConnection(null)
+        setIsConnected(false)
+        setIsDownloading(false)
+      }
+
+      const handleError = (err: Error) => {
+        console.error('[Downloader] connection error:', err)
+        if (timeoutId) clearTimeout(timeoutId)
+        setErrorMessage(cleanErrorMessage(err.message))
+        if (conn.open) conn.close()
+        else handleClose()
+      }
+
+      conn.on('open', handleOpen)
+      conn.on('data', handleData)
+      conn.on('error', handleError)
+      conn.on('close', handleClose)
+      peer.on('error', handleError)
     }
 
-    const handleClose = () => {
-      console.log('[Downloader] connection closed')
-      setRotating(false)
-      setDataConnection(null)
-      setIsConnected(false)
-      setIsDownloading(false)
-    }
-
-    const handleError = (err: Error) => {
-      console.error('[Downloader] connection error:', err)
-      setErrorMessage(cleanErrorMessage(err.message))
-      if (conn.open) conn.close()
-      else handleClose()
-    }
-
-    conn.on('open', handleOpen)
-    conn.on('data', handleData)
-    conn.on('error', handleError)
-    conn.on('close', handleClose)
-    peer.on('error', handleError)
+    attemptConnection()
 
     return () => {
+      cleaned = true
+      if (timeoutId) clearTimeout(timeoutId)
       console.log('[Downloader] cleaning up connection')
-      if (conn.open) {
-        conn.close()
-      } else {
-        conn.once('open', () => {
-          conn.close()
-        })
+      if (currentConn) {
+        if (currentConn.open) {
+          currentConn.close()
+        } else {
+          currentConn.once('open', () => {
+            currentConn?.close()
+          })
+        }
       }
-
-      conn.off('open', handleOpen)
-      conn.off('data', handleData)
-      conn.off('error', handleError)
-      conn.off('close', handleClose)
-      peer.off('error', handleError)
     }
   }, [peer])
 

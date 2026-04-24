@@ -318,8 +318,25 @@ export default function CoffeePongGame({
 
   const isMeReady = currentUserRole === 'uploader' ? renderState.p1Ready : renderState.p2Ready
 
+  // Responsive scaling: scale the fixed-size canvas to fit mobile screens
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const [scale, setScale] = React.useState(1)
+
+  React.useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const parentWidth = containerRef.current.parentElement?.clientWidth || GAME_WIDTH
+        const maxWidth = Math.min(parentWidth - 16, GAME_WIDTH) // 16px padding
+        setScale(maxWidth / GAME_WIDTH)
+      }
+    }
+    updateScale()
+    window.addEventListener('resize', updateScale)
+    return () => window.removeEventListener('resize', updateScale)
+  }, [])
+
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full" ref={containerRef}>
       {/* Score Bar */}
       <div className="flex items-center justify-between w-full px-4 mb-3">
         <div className="flex items-center gap-2">
@@ -337,10 +354,17 @@ export default function CoffeePongGame({
         </div>
       </div>
 
-      {/* Game Canvas */}
+      {/* Game Canvas - scales down on mobile */}
       <div
         className="relative rounded-2xl overflow-hidden cursor-none touch-none shadow-[0_0_30px_rgba(0,0,0,0.4)] border border-stone-800/80"
-        style={{ width: GAME_WIDTH, height: GAME_HEIGHT, background: 'linear-gradient(135deg, #0c0a09, #1c1917)' }}
+        style={{
+          width: GAME_WIDTH,
+          height: GAME_HEIGHT,
+          background: 'linear-gradient(135deg, #0c0a09, #1c1917)',
+          transform: `scale(${scale})`,
+          transformOrigin: 'top center',
+          marginBottom: scale < 1 ? -(GAME_HEIGHT * (1 - scale)) : 0,
+        }}
         onMouseMove={handleMouseMove}
         onTouchMove={handleMouseMove}
       >
@@ -348,18 +372,22 @@ export default function CoffeePongGame({
         <div className="absolute top-0 bottom-0 left-1/2 w-px" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 8px, rgba(255,255,255,0.08) 8px, rgba(255,255,255,0.08) 16px)' }} />
         <div className="absolute top-1/2 left-1/2 w-16 h-16 -ml-8 -mt-8 rounded-full border border-stone-800/40" />
 
-        {/* Paddles */}
-        <motion.div
-          className={`absolute left-0 w-2.5 rounded-r-lg ${currentUserRole === 'uploader' ? 'bg-gradient-to-b from-[#f37021] to-[#e0661e] shadow-[0_0_12px_rgba(243,112,33,0.4)]' : 'bg-gradient-to-b from-stone-500 to-stone-600'}`}
-          style={{ height: PADDLE_HEIGHT }}
-          animate={{ top: renderState.paddle1 }}
-          transition={{ type: 'tween', duration: 0.02 }}
+        {/* Paddles - wider and brighter for visibility */}
+        <div
+          className={`absolute left-0 rounded-r-lg ${currentUserRole === 'uploader' ? 'bg-[#f37021] shadow-[0_0_16px_rgba(243,112,33,0.6)]' : 'bg-stone-400'}`}
+          style={{
+            width: PADDLE_WIDTH,
+            height: PADDLE_HEIGHT,
+            top: renderState.paddle1,
+          }}
         />
-        <motion.div
-          className={`absolute right-0 w-2.5 rounded-l-lg ${currentUserRole === 'downloader' ? 'bg-gradient-to-b from-[#f37021] to-[#e0661e] shadow-[0_0_12px_rgba(243,112,33,0.4)]' : 'bg-gradient-to-b from-stone-500 to-stone-600'}`}
-          style={{ height: PADDLE_HEIGHT }}
-          animate={{ top: renderState.paddle2 }}
-          transition={{ type: 'tween', duration: currentUserRole === 'downloader' ? 0.02 : 0.05 }}
+        <div
+          className={`absolute right-0 rounded-l-lg ${currentUserRole === 'downloader' ? 'bg-[#f37021] shadow-[0_0_16px_rgba(243,112,33,0.6)]' : 'bg-stone-400'}`}
+          style={{
+            width: PADDLE_WIDTH,
+            height: PADDLE_HEIGHT,
+            top: renderState.paddle2,
+          }}
         />
 
         {/* Ball */}

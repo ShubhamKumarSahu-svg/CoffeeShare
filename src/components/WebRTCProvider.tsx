@@ -39,12 +39,16 @@ async function getOrCreateGlobalPeer(): Promise<Peer> {
     console.log('[WebRTCProvider] host:', host)
     console.log('[WebRTCProvider] path:', path)
 
+    const isDefaultCloud = host === '0.peerjs.com'
+    
     globalPeer = new Peer({
       debug: 3,
-      host,
-      path,
-      secure: window.location.protocol === 'https:' || host === '0.peerjs.com',
-      port: host === '0.peerjs.com' ? 443 : (window.location.protocol === 'https:' ? 443 : 9000),
+      ...(isDefaultCloud ? {} : {
+        host,
+        path,
+        secure: window.location.protocol === 'https:',
+        port: window.location.protocol === 'https:' ? 443 : 9000,
+      }),
       config: {
         iceServers,
       },

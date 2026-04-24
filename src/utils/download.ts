@@ -58,6 +58,76 @@ export function streamDownloadMultipleFiles(
   return readableZipStream.pipeTo(fileStream)
 }
 
+// ---------------------------------------------------------
+// Native File System Access API (Modern Chrome/Edge/Opera)
+// ---------------------------------------------------------
+
+export const supportsFileSystemAccessAPI = () => {
+  return typeof window !== 'undefined' && 'showSaveFilePicker' in window && 'showDirectoryPicker' in window
+}
+
+export async function nativeDownloadSingleFile(
+  file: DownloadFileStream,
+  suggestedName: string
+): Promise<void> {
+  // @ts-ignore
+  const handle = await window.showSaveFilePicker({
+    suggestedName,
+  })
+  const writable = await handle.createWritable()
+  const reader = file.stream().getReader()
+
+  const pump = async () => {
+    const res = await reader.read()
+    if (res.done) {
+      await writable.close()
+    } else {
+      await writable.write(res.value)
+      await pump()
+    }
+  }
+  await pump()
+}
+
+export async function nativeDownloadMultipleFiles(
+  files: Array<DownloadFileStream>,
+): Promise<void> {
+  // @ts-ignore
+  const dirHandle = await window.showDirectoryPicker({
+    id: 'coffeeshare-downloads',
+    mode: 'readwrite',
+  })
+
+  for (const file of files) {
+    // If the filename contains slashes, it's a folder structure. 
+    // We need to create the subdirectories first.
+    const parts = file.name.split('/')
+    const fileName = parts.pop()!
+    let currentDirHandle = dirHandle
+
+    for (const part of parts) {
+      if (part) {
+        currentDirHandle = await currentDirHandle.getDirectoryHandle(part, { create: true })
+      }
+    }
+
+    const fileHandle = await currentDirHandle.getFileHandle(fileName, { create: true })
+    const writable = await fileHandle.createWritable()
+    
+    const reader = file.stream().getReader()
+    const pump = async () => {
+      const res = await reader.read()
+      if (res.done) {
+        await writable.close()
+      } else {
+        await writable.write(res.value)
+        await pump()
+      }
+    }
+    await pump()
+  }
+}
+
 export async function createLivePreviewStream(
   fileName: string,
   fileType: string,

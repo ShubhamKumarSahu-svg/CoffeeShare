@@ -13,6 +13,9 @@ import {
   streamDownloadSingleFile,
   streamDownloadMultipleFiles,
   createLivePreviewStream,
+  nativeDownloadSingleFile,
+  nativeDownloadMultipleFiles,
+  supportsFileSystemAccessAPI,
 } from '../utils/download'
 import {
   browserName,
@@ -239,7 +242,7 @@ export function useDownloader(uploaderPeerID: string): {
     [dataConnection],
   )
 
-  const startDownload = useCallback(async () => {
+  const startDownload = useCallback(async (useNativeFS: boolean = false) => {
     if (!filesInfo || !dataConnection) return
     console.log('[Downloader] starting download')
     setIsDownloading(true)
@@ -370,10 +373,16 @@ export function useDownloader(uploaderPeerID: string): {
       stream: () => fileStreams[i],
     }))
 
-    const downloadPromise =
-      downloads.length > 1
+    let downloadPromise: Promise<void>
+    if (useNativeFS && supportsFileSystemAccessAPI()) {
+      downloadPromise = downloads.length > 1
+        ? nativeDownloadMultipleFiles(downloads)
+        : nativeDownloadSingleFile(downloads[0], downloads[0].name)
+    } else {
+      downloadPromise = downloads.length > 1
         ? streamDownloadMultipleFiles(downloads, getZipFilename())
         : streamDownloadSingleFile(downloads[0], downloads[0].name)
+    }
 
     downloadPromise
       .then(() => {

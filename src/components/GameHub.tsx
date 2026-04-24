@@ -7,13 +7,15 @@ import toast from 'react-hot-toast'
 import CoffeePongGame from './games/CoffeePongGame'
 import TicTacToe from './games/TicTacToe'
 import ReactionRace from './games/ReactionRace'
+import Scratchpad from './games/Scratchpad'
 
-type GameId = 'pong' | 'tictactoe' | 'reaction'
+type GameId = 'pong' | 'tictactoe' | 'reaction' | 'scratchpad'
 
 const GAMES: { id: GameId; name: string; icon: React.ReactNode; desc: string }[] = [
   { id: 'pong', name: 'Coffee Pong', icon: <Gamepad2 className="w-5 h-5" />, desc: 'Classic paddle game' },
   { id: 'tictactoe', name: 'Tic-Tac-Toe', icon: <Grid3X3 className="w-5 h-5" />, desc: 'X vs O strategy' },
   { id: 'reaction', name: 'Reaction Race', icon: <Zap className="w-5 h-5" />, desc: 'Speed test' },
+  { id: 'scratchpad', name: 'Scratchpad', icon: <span className="text-xl">📝</span>, desc: 'Real-time editor' },
 ]
 
 export default function GameHub({
@@ -150,6 +152,9 @@ export default function GameHub({
                   )}
                   {activeGame === 'reaction' && (
                     <ReactionRace gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
+                  )}
+                  {activeGame === 'scratchpad' && (
+                    <Scratchpad gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
                   )}
                 </>
               )}

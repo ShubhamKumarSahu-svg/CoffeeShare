@@ -17,6 +17,7 @@ import { FileUp, Copy, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ChatDrawer from './ChatDrawer'
 import GameHub from './GameHub'
+import VideoChat from './VideoChat'
 
 function CopyButton({ textToCopy }: { textToCopy: string }): JSX.Element {
   const [copied, setCopied] = useState(false)
@@ -215,16 +216,17 @@ export default function Uploader({
         <StopButton onClick={handleStop} />
       </div>
 
-      <GameHub
-        gameState={gameState}
-        sendGameState={sendGameState}
-        currentUserRole="uploader"
-      />
       <ChatDrawer
         messages={chatMessages}
         onSendMessage={sendChatMessage}
         currentUserRole="uploader"
       />
+      <GameHub 
+        gameState={gameState} 
+        sendGameState={sendGameState} 
+        currentUserRole="uploader" 
+      />
+      <VideoChat isUploader={true} />
     </motion.div>
   )
 }

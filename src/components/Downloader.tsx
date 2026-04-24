@@ -8,6 +8,7 @@ import UnlockButton from './UnlockButton'
 import Loading from './Loading'
 import UploadFileList from './UploadFileList'
 import DownloadButton from './DownloadButton'
+import { supportsFileSystemAccessAPI } from '../utils/download'
 
 import ProgressBar from './ProgressBar'
 import TitleText from './TitleText'
@@ -20,6 +21,7 @@ import { ErrorMessage } from './ErrorMessage'
 import Spinner from './Spinner'
 import ChatDrawer from './ChatDrawer'
 import GameHub from './GameHub'
+import VideoChat from './VideoChat'
 
 interface FileInfo {
   fileName: string
@@ -246,7 +248,7 @@ export function ReadyToDownload({
   onStart,
 }: {
   filesInfo: FileInfo[]
-  onStart: () => void
+  onStart: (useNativeFS: boolean) => void
 }): JSX.Element {
   return (
     <>
@@ -256,7 +258,28 @@ export function ReadyToDownload({
       </TitleText>
       <div className="flex flex-col space-y-5 w-full animate-scale-in">
         <UploadFileList files={filesInfo} />
-        <DownloadButton onClick={onStart} />
+        
+        {filesInfo.length > 1 && supportsFileSystemAccessAPI() ? (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => onStart(false)}
+              className="flex-1 px-5 py-3.5 rounded-2xl bg-stone-800 text-stone-100 font-bold hover:bg-stone-700 transition-colors border border-stone-700 shadow-md text-sm"
+            >
+              Download as .zip
+            </button>
+            <button
+              onClick={() => onStart(true)}
+              className="flex-1 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#f37021] to-[#e0661e] hover:from-[#ff8033] hover:to-[#f37021] text-white font-bold transition-all shadow-lg shadow-[#f37021]/20 flex items-center justify-center gap-2 text-sm"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              Save as Folder
+            </button>
+          </div>
+        ) : (
+          <DownloadButton onClick={() => onStart(false)} />
+        )}
       </div>
     </>
   )
@@ -391,6 +414,7 @@ export default function Downloader({
             onSendMessage={sendChatMessage}
             currentUserRole="downloader"
           />
+          <VideoChat isUploader={false} remotePeerId={uploaderPeerId} />
         </>
       )}
     </>

@@ -23,7 +23,7 @@ const PADDLE_HEIGHT = 60
 const PADDLE_WIDTH = 10
 const BALL_SIZE = 12
 const WIN_SCORE = 10
-const BASE_SPEED = 180 // pixels per second (slower start)
+const BASE_SPEED = 240 // pixels per second
 
 export default function CoffeePongGame({
   gameState,
@@ -75,6 +75,12 @@ export default function CoffeePongGame({
     score: [0, 0],
   })
 
+  // Downloader prediction state
+  const downloaderState = useRef({
+    ball: { x: GAME_WIDTH / 2 - BALL_SIZE / 2, y: GAME_HEIGHT / 2 - BALL_SIZE / 2 },
+    velocity: { x: 0, y: 0 }
+  })
+
   const [winner, setWinner] = useState<string | null>(null)
 
   const startCountdown = useCallback(() => {
@@ -102,6 +108,9 @@ export default function CoffeePongGame({
     if (gameState.type === 'game-invite' || gameState.type === 'game-accept') return
     if (currentUserRole === 'downloader') {
       if (gameState.type === 'sync') {
+        downloaderState.current.ball = gameState.ball
+        downloaderState.current.velocity = gameState.velocity
+
         setRenderState(prev => ({
           status: gameState.status,
           countdown: gameState.countdown,
@@ -127,6 +136,37 @@ export default function CoffeePongGame({
       }
     }
   }, [gameState, currentUserRole, startCountdown])
+
+  // Client-side prediction for downloader to eliminate jitter
+  useEffect(() => {
+    if (currentUserRole !== 'downloader' || !isOpen) return
+    let animationFrameId: number
+    let lastTime = performance.now()
+
+    const predictLoop = (now: number) => {
+      const dt = (now - lastTime) / 1000
+      lastTime = now
+
+      if (renderState.status === 'playing') {
+        const dState = downloaderState.current
+        dState.ball.x += dState.velocity.x * dt
+        dState.ball.y += dState.velocity.y * dt
+
+        // Basic boundary prediction (purely visual)
+        if (dState.ball.y <= 0 || dState.ball.y >= GAME_HEIGHT - BALL_SIZE) {
+          dState.velocity.y *= -1
+          dState.ball.y = Math.max(0, Math.min(GAME_HEIGHT - BALL_SIZE, dState.ball.y))
+        }
+
+        setRenderState(prev => ({ ...prev, ball: { ...dState.ball } }))
+      }
+
+      animationFrameId = requestAnimationFrame(predictLoop)
+    }
+
+    animationFrameId = requestAnimationFrame(predictLoop)
+    return () => cancelAnimationFrame(animationFrameId)
+  }, [currentUserRole, isOpen, renderState.status])
 
   // Fixed-timestep game loop (eliminates jitter on all refresh rates)
   useEffect(() => {
@@ -157,7 +197,7 @@ export default function CoffeePongGame({
       const hitRight = state.ball.x >= GAME_WIDTH - PADDLE_WIDTH - BALL_SIZE && state.ball.y + BALL_SIZE >= state.paddle2 && state.ball.y <= state.paddle2 + PADDLE_HEIGHT
 
       if (hitLeft || hitRight) {
-        state.velocity.x *= -1.04
+        state.velocity.x *= -1.02 // slight speed up on hit
         const paddleCenter = hitLeft ? state.paddle1 + PADDLE_HEIGHT / 2 : state.paddle2 + PADDLE_HEIGHT / 2
         const diff = (state.ball.y + BALL_SIZE / 2 - paddleCenter) / (PADDLE_HEIGHT / 2)
         state.velocity.y = diff * Math.abs(state.velocity.x) * 0.75
@@ -225,6 +265,7 @@ export default function CoffeePongGame({
           p1Ready: state.p1Ready,
           p2Ready: state.p2Ready,
           ball: state.ball,
+          velocity: state.velocity,
           paddle1: state.paddle1,
           score: state.score,
           winner: winner,

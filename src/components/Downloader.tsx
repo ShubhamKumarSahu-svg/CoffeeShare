@@ -19,7 +19,7 @@ import { playDingSound } from '../utils/sound'
 import { ErrorMessage } from './ErrorMessage'
 import Spinner from './Spinner'
 import ChatDrawer from './ChatDrawer'
-import CoffeePong from './CoffeePong'
+import GameHub from './GameHub'
 
 interface FileInfo {
   fileName: string
@@ -381,7 +381,7 @@ export default function Downloader({
       {content}
       {(isDownloading || isDone || filesInfo) && (
         <>
-          <CoffeePong
+          <GameHub
             gameState={gameState}
             sendGameState={sendGameState}
             currentUserRole="downloader"

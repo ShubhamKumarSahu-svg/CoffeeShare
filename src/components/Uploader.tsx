@@ -16,7 +16,7 @@ import { motion } from 'framer-motion'
 import { FileUp, Copy, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ChatDrawer from './ChatDrawer'
-import CoffeePong from './CoffeePong'
+import GameHub from './GameHub'
 
 function CopyButton({ textToCopy }: { textToCopy: string }): JSX.Element {
   const [copied, setCopied] = useState(false)
@@ -215,7 +215,7 @@ export default function Uploader({
         <StopButton onClick={handleStop} />
       </div>
 
-      <CoffeePong
+      <GameHub
         gameState={gameState}
         sendGameState={sendGameState}
         currentUserRole="uploader"

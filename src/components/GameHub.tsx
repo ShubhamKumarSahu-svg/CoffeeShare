@@ -4,15 +4,15 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Gamepad2, X, Zap, Grid3X3 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import CoffeePongGame from './games/CoffeePongGame'
+import ConnectFour from './games/ConnectFour'
 import TicTacToe from './games/TicTacToe'
 import ReactionRace from './games/ReactionRace'
 import Scratchpad from './games/Scratchpad'
 
-type GameId = 'pong' | 'tictactoe' | 'reaction' | 'scratchpad'
+type GameId = 'connect4' | 'tictactoe' | 'reaction' | 'scratchpad'
 
 const GAMES: { id: GameId; name: string; icon: React.ReactNode; desc: string }[] = [
-  { id: 'pong', name: 'Coffee Pong', icon: <Gamepad2 className="w-5 h-5" />, desc: 'Classic paddle game' },
+  { id: 'connect4', name: 'Connect Four', icon: <Gamepad2 className="w-5 h-5" />, desc: 'Drop 4 in a row' },
   { id: 'tictactoe', name: 'Tic-Tac-Toe', icon: <Grid3X3 className="w-5 h-5" />, desc: 'X vs O strategy' },
   { id: 'reaction', name: 'Reaction Race', icon: <Zap className="w-5 h-5" />, desc: 'Speed test' },
   { id: 'scratchpad', name: 'Scratchpad', icon: <span className="text-xl">📝</span>, desc: 'Real-time editor' },
@@ -144,8 +144,8 @@ export default function GameHub({
                     <div className="w-12" />
                   </div>
 
-                  {activeGame === 'pong' && (
-                    <CoffeePongGame gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} isOpen={isOpen} />
+                  {activeGame === 'connect4' && (
+                    <ConnectFour gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
                   )}
                   {activeGame === 'tictactoe' && (
                     <TicTacToe gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />

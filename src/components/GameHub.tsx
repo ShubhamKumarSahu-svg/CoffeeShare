@@ -8,12 +8,18 @@ import ConnectFour from './games/ConnectFour'
 import TicTacToe from './games/TicTacToe'
 import ReactionRace from './games/ReactionRace'
 import Scratchpad from './games/Scratchpad'
+import MemoryMatch from './games/MemoryMatch'
+import RockPaperScissors from './games/RockPaperScissors'
+import TypingRace from './games/TypingRace'
 
-type GameId = 'connect4' | 'tictactoe' | 'reaction' | 'scratchpad'
+type GameId = 'connect4' | 'tictactoe' | 'reaction' | 'memory' | 'rps' | 'typing' | 'scratchpad'
 
 const GAMES: { id: GameId; name: string; icon: React.ReactNode; desc: string }[] = [
   { id: 'connect4', name: 'Connect Four', icon: <Gamepad2 className="w-5 h-5" />, desc: 'Drop 4 in a row' },
   { id: 'tictactoe', name: 'Tic-Tac-Toe', icon: <Grid3X3 className="w-5 h-5" />, desc: 'X vs O strategy' },
+  { id: 'memory', name: 'Memory Match', icon: <span className="text-xl">🎴</span>, desc: 'Find the pairs' },
+  { id: 'typing', name: 'Typing Race', icon: <span className="text-xl">⌨️</span>, desc: 'Speed typing' },
+  { id: 'rps', name: 'R-P-S', icon: <span className="text-xl">✌️</span>, desc: 'Rock Paper Scissors' },
   { id: 'reaction', name: 'Reaction Race', icon: <Zap className="w-5 h-5" />, desc: 'Speed test' },
   { id: 'scratchpad', name: 'Scratchpad', icon: <span className="text-xl">📝</span>, desc: 'Real-time editor' },
 ]
@@ -109,14 +115,17 @@ export default function GameHub({
 
               {!activeGame ? (
                 <>
-                  <h2 className="text-xl font-bold text-stone-100 mb-1 flex items-center gap-2">
-                    <Gamepad2 className="text-[#f37021] w-5 h-5" />
+                  <h2 className="text-2xl font-black text-white mb-2 flex items-center gap-3">
+                    <span className="p-2 bg-[#f37021]/20 text-[#f37021] rounded-xl">
+                      <Gamepad2 className="w-6 h-6" />
+                    </span>
                     Game Lobby
                   </h2>
-                  <p className="text-stone-400 text-sm mb-6">
-                    Pick a game to play with your peer via WebRTC
+                  <p className="text-stone-400 text-sm mb-6 text-center">
+                    Bored waiting for the transfer? Challenge your peer to a quick match!
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full mb-4">
                     {GAMES.map(g => (
                       <motion.button
                         key={g.id}
@@ -152,6 +161,15 @@ export default function GameHub({
                   )}
                   {activeGame === 'reaction' && (
                     <ReactionRace gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
+                  )}
+                  {activeGame === 'memory' && (
+                    <MemoryMatch gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
+                  )}
+                  {activeGame === 'rps' && (
+                    <RockPaperScissors gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
+                  )}
+                  {activeGame === 'typing' && (
+                    <TypingRace gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />
                   )}
                   {activeGame === 'scratchpad' && (
                     <Scratchpad gameState={gameState} sendGameState={sendGameState} currentUserRole={currentUserRole} />

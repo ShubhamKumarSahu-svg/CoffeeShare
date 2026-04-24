@@ -8,28 +8,34 @@ const peerjsHost = process.env.PEERJS_HOST || '0.peerjs.com'
 const peerjsPath = process.env.PEERJS_PATH || '/'
 
 export async function POST(): Promise<NextResponse> {
+  const publicIceServers = [
+    { urls: stunServer },
+    {
+      urls: 'turn:openrelay.metered.ca:80',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+  ]
+
   if (!process.env.COTURN_ENABLED) {
     return NextResponse.json({
       host: peerjsHost,
       path: peerjsPath,
-      iceServers: [
-        { urls: stunServer },
-        // Add a free public TURN server for strict NATs (e.g. mobile hotspots, corporate networks)
-        {
-          urls: 'turn:openrelay.metered.ca:80',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
-        },
-        {
-          urls: 'turn:openrelay.metered.ca:443',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
-        },
-      ],
+      iceServers: publicIceServers,
     })
   }
 
-  // Generate ephemeral credentials
+  // Generate ephemeral credentials for custom TURN
   const username = crypto.randomBytes(8).toString('hex')
   const password = crypto.randomBytes(8).toString('hex')
   const ttl = 86400 // 24 hours
@@ -41,7 +47,7 @@ export async function POST(): Promise<NextResponse> {
     host: peerjsHost,
     path: peerjsPath,
     iceServers: [
-      { urls: stunServer },
+      ...publicIceServers,
       {
         urls: [`turn:${turnHost}:3478`, `turns:${turnHost}:5349`],
         username,

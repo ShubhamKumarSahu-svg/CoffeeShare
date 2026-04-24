@@ -12,7 +12,20 @@ export async function POST(): Promise<NextResponse> {
     return NextResponse.json({
       host: peerjsHost,
       path: peerjsPath,
-      iceServers: [{ urls: stunServer }],
+      iceServers: [
+        { urls: stunServer },
+        // Add a free public TURN server for strict NATs (e.g. mobile hotspots, corporate networks)
+        {
+          urls: 'turn:openrelay.metered.ca:80',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        },
+      ],
     })
   }
 

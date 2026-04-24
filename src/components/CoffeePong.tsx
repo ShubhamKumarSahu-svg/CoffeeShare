@@ -53,7 +53,7 @@ export default function CoffeePong({
       x: GAME_WIDTH / 2 - BALL_SIZE / 2,
       y: GAME_HEIGHT / 2 - BALL_SIZE / 2,
     },
-    velocity: { x: 5, y: 3 },
+    velocity: { x: 3, y: 2 },
     paddle1: GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2,
     paddle2: GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2,
     score: [0, 0],
@@ -226,8 +226,8 @@ export default function CoffeePong({
         y: GAME_HEIGHT / 2 - BALL_SIZE / 2,
       }
       state.velocity = {
-        x: state.velocity.x > 0 ? -5 : 5,
-        y: (Math.random() - 0.5) * 6,
+        x: state.velocity.x > 0 ? -3 : 3,
+        y: (Math.random() - 0.5) * 4,
       }
       startCountdown()
     }
@@ -360,6 +360,7 @@ export default function CoffeePong({
                         height: BALL_SIZE,
                         left: renderState.ball.x,
                         top: renderState.ball.y,
+                        transition: currentUserRole === 'downloader' ? 'left 33ms linear, top 33ms linear' : 'none',
                       }}
                     />
                   )}

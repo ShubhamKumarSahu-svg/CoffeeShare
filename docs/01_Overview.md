@@ -113,3 +113,4 @@ CoffeeShare uses a **Base64url slug system** for generating clean, shareable dow
 | `src/channel.ts` | Signaling backend (Redis / In-Memory strategy pattern) |
 | `prisma/schema.prisma` | Database schema (Room, RoomParticipant, Transfer, AnalyticsEvent) |
 <!-- . -->
+<!-- . -->

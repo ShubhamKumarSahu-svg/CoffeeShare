@@ -4,6 +4,8 @@ node_modules
 dist
 tsconfig.tsbuildinfo
 .env
+.env.local
+.env*.local
 .git_backup_*
 generate_history.js
 .claude

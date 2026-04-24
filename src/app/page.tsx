@@ -17,26 +17,30 @@ import TitleText from '../components/TitleText'
 import SubtitleText from '../components/SubtitleText'
 import { pluralize } from '../utils/pluralize'
 import AddFilesButton from '../components/AddFilesButton'
+import ParticleBackground from '../components/animations/ParticleBackground'
+import StaggerText from '../components/animations/StaggerText'
+import StaggerCards from '../components/animations/StaggerCards'
 
 function PageWrapper({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="w-full flex items-center justify-between py-6 px-8 max-w-[1400px] mx-auto">
+    <div className="flex flex-col min-h-screen relative">
+      <ParticleBackground />
+      <header className="w-full flex items-center justify-between py-6 px-8 max-w-[1400px] mx-auto relative z-10">
         <div className="flex items-center gap-3">
           <Wordmark />
         </div>
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-300">
-          <a href="#" className="hover:text-white transition-colors">Contact</a>
-          <a href="#" className="hover:text-white transition-colors">About</a>
-          <a href="#" className="hover:text-white transition-colors">Blog</a>
-          <a href="#" className="hover:text-white transition-colors">FAQ</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy</a>
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-400 dark:text-stone-300">
+          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">Contact</a>
+          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">About</a>
+          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">Blog</a>
+          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">FAQ</a>
+          <a href="#" className="hover:text-stone-900 dark:hover:text-white transition-colors">Privacy</a>
           <button className="bg-[#f37021] hover:bg-[#e0661e] text-white px-5 py-2 rounded-full font-semibold transition-colors">
             Download
           </button>
         </nav>
       </header>
-      <main className="flex-1 flex flex-col items-center py-14 max-w-6xl w-full mx-auto px-5 animate-fade-in">
+      <main className="flex-1 flex flex-col items-center py-14 max-w-6xl w-full mx-auto px-5 relative z-10">
         {children}
       </main>
     </div>
@@ -57,31 +61,33 @@ function InitialState({
       
       {/* Right side: Text and features */}
       <div className="w-full md:w-7/12 flex flex-col items-start text-left space-y-6">
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.15]">
-          Share files directly from your device to anywhere
+        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 dark:text-white leading-[1.15]">
+          <StaggerText text="Share files directly" />
+          <br />
+          <StaggerText text="from your device to anywhere" delay={400} />
         </h1>
-        <p className="text-lg text-stone-300 leading-relaxed max-w-xl">
+        <p className="text-lg text-stone-500 dark:text-stone-300 leading-relaxed max-w-xl">
           Send files of any size directly from your device without ever storing anything online.
         </p>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 w-full mt-4 font-medium">
-          <div className="flex items-center space-x-3 text-stone-200">
+        <StaggerCards className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 w-full mt-4 font-medium" delay={800}>
+          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
              <span className="text-[#f37021] text-lg">♾️</span>
              <span>No file size limit</span>
           </div>
-          <div className="flex items-center space-x-3 text-stone-200">
+          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
              <span className="text-[#f37021] text-lg">⚡</span>
              <span>Blazingly fast</span>
           </div>
-          <div className="flex items-center space-x-3 text-stone-200">
+          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
              <span className="text-[#f37021] text-lg">🔄</span>
              <span>Peer-to-peer</span>
           </div>
-          <div className="flex items-center space-x-3 text-stone-200">
+          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
              <span className="text-[#f37021] text-lg">🔒</span>
              <span>End-to-end encrypted</span>
           </div>
-        </div>
+        </StaggerCards>
       </div>
     </div>
   )

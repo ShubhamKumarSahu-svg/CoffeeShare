@@ -90,23 +90,35 @@ export default function ReactionRace({ gameState, sendGameState, currentUserRole
     }
   }, [phase, currentUserRole, sendGameState])
 
-  const bgColor = phase === 'waiting' ? 'bg-red-500/20 border-red-500/40'
-    : phase === 'go' ? 'bg-green-500/20 border-green-500/40'
-    : phase === 'too-early' ? 'bg-yellow-500/20 border-yellow-500/40'
-    : 'bg-stone-800/50 border-stone-700'
+  const bgColor = phase === 'waiting' ? 'bg-gradient-to-br from-red-500/30 to-red-600/10 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]'
+    : phase === 'go' ? 'bg-gradient-to-br from-green-500/30 to-green-600/10 border-green-500/50 shadow-[0_0_40px_rgba(34,197,94,0.4)]'
+    : phase === 'too-early' ? 'bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)]'
+    : 'bg-gradient-to-br from-stone-800/50 to-stone-900/50 border-stone-700/80 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]'
 
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-sm">
-      <div className="flex justify-between w-full px-2 mb-1">
-        <div className="text-lg font-mono font-bold text-[#f37021]">You: {scores[currentUserRole === 'uploader' ? 0 : 1]}</div>
-        <div className="text-xs text-stone-500 font-medium self-center">Round {round || '—'}</div>
-        <div className="text-lg font-mono font-bold text-stone-400">Them: {scores[currentUserRole === 'uploader' ? 1 : 0]}</div>
+      <div className="flex justify-between items-center w-full px-4 mb-2">
+        <div className="flex flex-col items-center">
+          <span className="text-xs font-semibold text-stone-500 mb-1">YOU</span>
+          <div className="text-3xl font-mono font-black text-[#f37021] drop-shadow-[0_0_8px_rgba(243,112,33,0.5)]">
+            {scores[currentUserRole === 'uploader' ? 0 : 1]}
+          </div>
+        </div>
+        <div className="px-4 py-1.5 rounded-full bg-stone-800/50 border border-stone-700">
+          <span className="text-xs font-mono font-bold text-stone-400 tracking-wider">ROUND {round || '—'}</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-xs font-semibold text-stone-500 mb-1">THEM</span>
+          <div className="text-3xl font-mono font-black text-stone-300">
+            {scores[currentUserRole === 'uploader' ? 1 : 0]}
+          </div>
+        </div>
       </div>
 
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={{ scale: 0.95 }}
         onClick={phase === 'idle' || phase === 'result' ? startRound : handleTap}
-        className={`w-full h-48 rounded-2xl border-2 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer select-none ${bgColor}`}
+        className={`w-full h-56 rounded-3xl border-2 flex flex-col items-center justify-center gap-3 transition-all duration-300 cursor-pointer select-none overflow-hidden ${bgColor}`}
       >
         {phase === 'idle' && (
           <>

@@ -28,13 +28,23 @@ export default function StaggerText({ text, className = '', delay = 0 }: Stagger
 
   return (
     <span ref={containerRef} className={className} aria-label={text}>
-      {text.split('').map((char, i) => (
-        <span
-          key={i}
-          className="stagger-letter inline-block"
-          style={{ opacity: 0 }}
-        >
-          {char === ' ' ? '\u00A0' : char}
+      {text.split(' ').map((word, wordIdx, arr) => (
+        <span key={wordIdx} className="inline-block whitespace-nowrap">
+          {word.split('').map((char, charIdx) => (
+            <span
+              key={`${wordIdx}-${charIdx}`}
+              className="stagger-letter inline-block"
+              style={{ opacity: 0 }}
+            >
+              {char}
+            </span>
+          ))}
+          {/* Add a non-breaking space after the word, except for the last word */}
+          {wordIdx < arr.length - 1 && (
+            <span className="stagger-letter inline-block" style={{ opacity: 0 }}>
+              &nbsp;
+            </span>
+          )}
         </span>
       ))}
     </span>

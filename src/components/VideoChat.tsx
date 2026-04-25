@@ -39,18 +39,32 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
   const activeCallRef = useRef<any>(null)
   const incomingCallRef = useRef<any>(null)
 
-  // Listen for incoming calls
+  // Listen for incoming calls and connection messages
   useEffect(() => {
     if (!peer) return
     const handleCall = (call: any) => {
       // We got an incoming call
       incomingCallRef.current = call
       setCallState('incoming')
-      // Try to determine if it's audio or video based on metadata or just assume video.
-      // We'll prompt the user to answer with Audio or Video.
     }
+    
+    const handleConnection = (conn: any) => {
+      conn.on('data', (data: any) => {
+        if (data && data.type === 'CALL_DECLINED') {
+          if (callStateRef.current === 'calling') {
+            toast.error('Call declined by peer', { icon: '📵' })
+            endCall()
+          }
+        }
+      })
+    }
+    
     peer.on('call', handleCall)
-    return () => { peer.off('call', handleCall) }
+    peer.on('connection', handleConnection)
+    return () => { 
+      peer.off('call', handleCall) 
+      peer.off('connection', handleConnection)
+    }
   }, [peer])
 
   // Bind video elements
@@ -114,6 +128,13 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
 
   const rejectCall = () => {
     if (incomingCallRef.current) {
+      // Send a reliable data message to notify caller
+      const conn = peer.connect(incomingCallRef.current.peer)
+      conn.on('open', () => {
+        conn.send({ type: 'CALL_DECLINED' })
+        setTimeout(() => conn.close(), 500)
+      })
+      
       incomingCallRef.current.close()
       incomingCallRef.current = null
     }

@@ -13,7 +13,16 @@ import { setRotating } from '../hooks/useRotatingSpinner'
 import { playDingSound } from '../utils/sound'
 import { formatBytes } from '../utils/format'
 import { motion } from 'framer-motion'
-import { FileUp, Copy, Check } from 'lucide-react'
+import {
+  Check,
+  Copy,
+  FileUp,
+  Flame,
+  Gauge,
+  Link2,
+  ScanLine,
+  Users,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import ChatDrawer from './ChatDrawer'
 import GameHub from './GameHub'
@@ -111,17 +120,21 @@ export default function Uploader({
       : 0
 
   const totalSize = files.reduce((acc, f) => acc + f.size, 0)
+  const completedPeers = connections.filter(
+    (conn) => conn.status === UploaderConnectionStatus.Done,
+  ).length
 
   return (
     <motion.div
       layoutId="upload-container"
-      className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl mt-4"
+      className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl mt-4"
     >
       {/* Tile 1: File Status (col-span-2) */}
       <motion.div
         whileHover={{ scale: 1.02 }}
         className="surface col-span-1 md:col-span-2 rounded-3xl p-6 relative overflow-hidden flex flex-col justify-between"
       >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#f37021] via-[#ff985c] to-transparent" />
         <div className="flex items-center gap-4">
           {files.length === 1 && files[0].type.startsWith('image/') ? (
             <div 
@@ -171,6 +184,26 @@ export default function Uploader({
             </>
           )}
         </div>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <div className="text-[11px] text-stone-500 uppercase tracking-wider">Peers</div>
+            <div className="text-stone-100 font-semibold text-sm mt-1">
+              {connections.length || 0}
+            </div>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <div className="text-[11px] text-stone-500 uppercase tracking-wider">Done</div>
+            <div className="text-stone-100 font-semibold text-sm mt-1">
+              {completedPeers}
+            </div>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <div className="text-[11px] text-stone-500 uppercase tracking-wider">Progress</div>
+            <div className="text-stone-100 font-semibold text-sm mt-1">
+              {Math.round(overallProgress * 100)}%
+            </div>
+          </div>
+        </div>
         {/* Progress bar anchoring */}
         {activeDownloaders > 0 && (
           <div className="absolute bottom-0 left-0 h-1.5 bg-stone-800 w-full">
@@ -187,6 +220,10 @@ export default function Uploader({
         whileHover={{ scale: 1.02 }}
         className="surface col-span-1 rounded-3xl p-6 flex flex-col items-center justify-center gap-3 relative group"
       >
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-stone-400">
+          <ScanLine className="w-3 h-3" />
+          Quick Join
+        </div>
         <div className="bg-[#FAFAF9] p-3 rounded-2xl transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-[0_10px_20px_-10px_rgba(245,158,11,0.3)]">
           <QRCode
             value={shortURL}
@@ -206,9 +243,52 @@ export default function Uploader({
         className="surface col-span-1 md:col-span-3 rounded-3xl p-3 flex items-center gap-3"
       >
         <div className="flex-1 bg-[#0C0A09] rounded-2xl px-5 py-4 truncate font-mono text-stone-300 text-sm border border-stone-800 shadow-inner">
+          <div className="text-[10px] text-stone-500 uppercase tracking-wider mb-1 inline-flex items-center gap-1">
+            <Link2 className="w-3 h-3" />
+            Share Link
+          </div>
           {shortURL}
         </div>
         <CopyButton textToCopy={shortURL} />
+      </motion.div>
+
+      <motion.div
+        whileHover={{ scale: 1.01 }}
+        className="surface col-span-1 md:col-span-3 rounded-3xl p-5"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="inline-flex items-center gap-2 text-stone-300 text-sm font-semibold">
+              <Gauge className="w-4 h-4 text-[#f37021]" />
+              Transfer Engine
+            </div>
+            <p className="text-xs text-stone-400 mt-2">
+              Keep this tab open for maximum throughput and low disconnect risk.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="inline-flex items-center gap-2 text-stone-300 text-sm font-semibold">
+              <Users className="w-4 h-4 text-[#f37021]" />
+              Live Peers
+            </div>
+            <p className="text-xs text-stone-400 mt-2">
+              {connections.length > 0
+                ? `${connections.length} peer session(s) connected.`
+                : 'Waiting for first peer to connect.'}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="inline-flex items-center gap-2 text-stone-300 text-sm font-semibold">
+              <Flame className="w-4 h-4 text-[#f37021]" />
+              Burn Mode
+            </div>
+            <p className="text-xs text-stone-400 mt-2">
+              {burnAfterReading
+                ? 'Enabled: share closes after the first successful download.'
+                : 'Disabled: link stays active until you manually stop sharing.'}
+            </p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Actions */}

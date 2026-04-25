@@ -11,7 +11,7 @@ function FooterLink({
 }): JSX.Element {
   return (
     <a
-      className="accent-text hover:underline transition-colors duration-200"
+      className="text-brand hover:underline transition-colors duration-200"
       href={href}
       target="_blank"
       rel="noopener noreferrer"
@@ -23,14 +23,18 @@ function FooterLink({
 
 export function Footer(): JSX.Element {
   return (
-    <footer className="w-full text-center py-8 mt-auto text-xs border-t border-stone-200 dark:border-stone-800 bg-transparent z-40">
-      <div className="flex flex-col items-center gap-1 px-4">
-        <p className="text-stone-500 dark:text-stone-400 flex items-center justify-center gap-1.5">
-          <span className="font-semibold text-stone-700 dark:text-stone-200">CoffeeShare</span>
-          <span className="text-stone-300 dark:text-stone-600">—</span>
+    <footer className="w-full text-center py-10 mt-auto text-xs border-t border-[var(--border-subtle)] bg-transparent z-40">
+      <div className="flex flex-col items-center gap-4 px-4 max-w-4xl mx-auto">
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <a href="#drop-zone-button" className="btn btn-hero">Start a secure share</a>
+          <a href="#faq" className="btn btn-ghost">Read FAQ</a>
+        </div>
+        <p className="text-muted flex items-center justify-center gap-1.5">
+          <span className="font-semibold text-secondary">CoffeeShare</span>
+          <span className="text-muted">—</span>
           Secure P2P file transfers via WebRTC
         </p>
-        <p className="text-stone-400 dark:text-stone-500 mono text-[10px] mt-1">
+        <p className="text-muted mono text-[10px]">
           next.js · peerjs · webrtc &middot;{' '}
           <FooterLink href="https://github.com/ShubhamKumarSahu-svg/CoffeeShare">
             source

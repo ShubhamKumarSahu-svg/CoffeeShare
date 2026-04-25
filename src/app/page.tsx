@@ -1,36 +1,57 @@
 'use client'
 
-import React, { JSX, useCallback, useState } from 'react'
-import WebRTCPeerProvider from '../components/WebRTCProvider'
+import dynamic from 'next/dynamic'
+import React, { JSX, useCallback, useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Flame,
+  Link2,
+  Shield,
+  Sparkles
+} from 'lucide-react'
+import AddFilesButton from '../components/AddFilesButton'
+import CancelButton from '../components/CancelButton'
 import DropZone from '../components/DropZone'
+import PasswordField from '../components/PasswordField'
+import ParticleBackground from '../components/animations/ParticleBackground'
+import StaggerCards from '../components/animations/StaggerCards'
+import StaggerText from '../components/animations/StaggerText'
+import StartButton from '../components/StartButton'
+import SubtitleText from '../components/SubtitleText'
+import TitleText from '../components/TitleText'
 import UploadFileList from '../components/UploadFileList'
 import Uploader from '../components/Uploader'
-import PasswordField from '../components/PasswordField'
-import StartButton from '../components/StartButton'
-import { UploadedFile } from '../types'
+import WebRTCPeerProvider from '../components/WebRTCProvider'
 import Wordmark from '../components/Wordmark'
-import CancelButton from '../components/CancelButton'
-import { useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { getFileName } from '../fs'
-import TitleText from '../components/TitleText'
-import SubtitleText from '../components/SubtitleText'
+import { UploadedFile } from '../types'
 import { pluralize } from '../utils/pluralize'
-import AddFilesButton from '../components/AddFilesButton'
-import ParticleBackground from '../components/animations/ParticleBackground'
-import StaggerText from '../components/animations/StaggerText'
-import StaggerCards from '../components/animations/StaggerCards'
+
+const MarketingSections = dynamic(
+  () => import('../components/landing/MarketingSections'),
+  { loading: () => <div className="w-full h-24" /> },
+)
 
 function PageWrapper({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <div className="flex flex-col min-h-screen relative">
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
       <ParticleBackground />
-      <header className="w-full flex items-center justify-between py-6 px-8 max-w-[1400px] mx-auto relative z-10">
-        <div className="flex items-center gap-3">
+      <div className="mesh-overlay" />
+      <div className="noise-overlay" />
+      <header className="sticky top-0 z-40 w-full border-b border-[var(--border-subtle)] bg-[oklch(0.16_0.02_30_/72%)] backdrop-blur-xl">
+        <div className="w-full flex items-center justify-between py-4 px-4 md:px-8 max-w-[1240px] mx-auto">
           <Wordmark />
+          <nav className="hidden lg:flex items-center gap-2">
+            <a href="#hero" className="nav-pill">Overview</a>
+            <a href="#demo" className="nav-pill">Live Demo</a>
+            <a href="#features" className="nav-pill">Features</a>
+            <a href="#security" className="nav-pill">Security</a>
+            <a href="#faq" className="nav-pill">FAQ</a>
+          </nav>
+          <a href="#drop-zone-button" className="btn btn-hero">Start Sharing</a>
         </div>
       </header>
-      <main className="flex-1 flex flex-col items-center py-14 max-w-6xl w-full mx-auto px-5 relative z-10">
+      <main className="flex-1 flex flex-col items-center py-10 max-w-6xl w-full mx-auto px-4 md:px-5 relative z-10">
         {children}
       </main>
     </div>
@@ -43,46 +64,97 @@ function InitialState({
   onDrop: (files: UploadedFile[]) => void
 }): JSX.Element {
   return (
-    <div className="w-full flex flex-col md:flex-row items-center justify-between gap-16 lg:gap-20 mt-12 md:mt-24">
-      {/* Right side: Text and features (Now on the left for better reading flow) */}
-      <div className="w-full md:w-1/2 flex flex-col items-start text-left space-y-8 relative z-10 order-2 md:order-1">
-        <h1 className="text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-white leading-[1.1] drop-shadow-2xl">
-          <StaggerText text="Share files" />
+    <section id="hero" className="w-full flex flex-col lg:flex-row items-start justify-between gap-10 mt-4 md:mt-10">
+      <div className="w-full lg:w-[56%] flex flex-col items-start text-left gap-6 relative z-10 order-2 lg:order-1">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--bg-muted)] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Browser-to-browser sharing engine
+        </motion.div>
+
+        <h1 className="heading-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.03]">
+          <StaggerText text="Peer-to-peer" />
           <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-stone-200 to-stone-500">
-            <StaggerText text="directly." delay={300} />
-          </span>
+          <StaggerText
+            text="file sharing, refined."
+            delay={220}
+            className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand)] via-[var(--text-primary)] to-[var(--text-secondary)]"
+          />
         </h1>
-        <p className="text-xl text-stone-400 font-medium leading-relaxed max-w-lg tracking-tight">
-          Send files of any size directly from your device without ever storing anything online. Fast, secure, and peer-to-peer.
+        <p className="text-lg md:text-xl text-secondary font-medium leading-relaxed max-w-2xl">
+          Send directly over WebRTC with end-to-end encryption, optional one-time links, password locks, and live collaboration while transfer runs.
         </p>
-        
-        <StaggerCards className="flex flex-wrap gap-3 w-full mt-2 font-medium" delay={600}>
-          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
-             <span className="text-[#f37021]">♾️</span>
-             <span className="text-sm">No size limit</span>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="grid grid-cols-3 gap-3 w-full max-w-xl"
+        >
+          <div className="panel rounded-2xl p-3">
+            <div className="inline-flex items-center gap-1.5 text-muted text-[11px] uppercase tracking-wider">
+              <Link2 className="w-3.5 h-3.5 text-brand" />
+              Link Ready
+            </div>
+            <p className="text-primary font-bold text-sm mt-1">~2s average</p>
           </div>
-          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
-             <span className="text-[#f37021]">⚡</span>
-             <span className="text-sm">Blazingly fast</span>
+          <div className="panel rounded-2xl p-3">
+            <div className="inline-flex items-center gap-1.5 text-muted text-[11px] uppercase tracking-wider">
+              <Shield className="w-3.5 h-3.5 text-brand" />
+              Security
+            </div>
+            <p className="text-primary font-bold text-sm mt-1">DTLS encrypted</p>
           </div>
-          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
-             <span className="text-[#f37021]">🔄</span>
-             <span className="text-sm">Peer-to-peer</span>
+          <div className="panel rounded-2xl p-3">
+            <div className="inline-flex items-center gap-1.5 text-muted text-[11px] uppercase tracking-wider">
+              <Flame className="w-3.5 h-3.5 text-brand" />
+              Burn Mode
+            </div>
+            <p className="text-primary font-bold text-sm mt-1">One-time links</p>
           </div>
-          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
-             <span className="text-[#f37021]">🔒</span>
-             <span className="text-sm">E2E encrypted</span>
-          </div>
+        </motion.div>
+
+        <StaggerCards className="flex flex-wrap gap-2.5 w-full mt-1 font-medium" delay={420}>
+          {['No cloud staging', 'Password protected', 'Live chat + voice', 'Mobile ready'].map((item) => (
+            <span key={item} className="nav-pill">
+              {item}
+            </span>
+          ))}
         </StaggerCards>
       </div>
 
-      {/* Left side: DropZone (Now on the right) */}
-      <div className="w-full md:w-1/2 flex justify-center md:justify-end shrink-0 order-1 md:order-2 relative">
-         <div className="absolute inset-0 bg-[#f37021]/20 blur-[100px] rounded-full translate-x-10 translate-y-10 pointer-events-none" />
-         <DropZone onDrop={onDrop} />
+      <div className="w-full lg:w-[44%] flex justify-center lg:justify-end shrink-0 order-1 lg:order-2 relative" id="demo">
+        <div className="w-full max-w-md space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28, duration: 0.4 }}
+            className="surface rounded-2xl px-4 py-3.5 flex items-center justify-between border border-[var(--border-subtle)]"
+          >
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-brand font-semibold">Live transfer engine</p>
+              <p className="text-sm md:text-base text-primary font-semibold">
+                Drop files to launch a live link
+              </p>
+            </div>
+            <div className="w-2.5 h-2.5 rounded-full bg-[var(--brand)] animate-pulse shadow-[0_0_0_4px_var(--brand-soft)]" />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="w-full animate-[breathe_4s_ease-in-out_infinite]"
+          >
+            <DropZone onDrop={onDrop} />
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -118,7 +190,7 @@ function ConfirmUploadState({
 }): JSX.Element {
   const fileListData = useUploaderFileListData(uploadedFiles)
   return (
-    <>
+    <section className="w-full max-w-3xl surface rounded-3xl p-6 md:p-8">
       <TitleText>
         You are about to share{' '}
         {pluralize(uploadedFiles.length, 'file', 'files')}.{' '}
@@ -127,26 +199,22 @@ function ConfirmUploadState({
       <UploadFileList files={fileListData} onRemove={onRemoveFile} />
       <PasswordField value={password} onChange={onChangePassword} />
 
-      <div
-        className="flex items-center space-x-2 w-full justify-center mt-2 cursor-pointer"
+      <button
+        type="button"
+        className="flex items-center space-x-2 w-full justify-center mt-3 cursor-pointer btn btn-ghost"
         onClick={onToggleBurn}
       >
-        <input
-          type="checkbox"
-          checked={burnAfterReading}
-          readOnly
-          className="w-4 h-4 text-[#F59E0B] bg-transparent border-stone-700 rounded focus:ring-[#F59E0B]"
-        />
-        <label className="text-sm font-medium text-stone-400 cursor-pointer select-none">
-          Burn after pouring (Close link after 1 download)
-        </label>
-      </div>
+        <Flame className={`w-4 h-4 ${burnAfterReading ? 'text-brand' : 'text-muted'}`} />
+        <span className="text-sm font-medium text-secondary">
+          Burn after pouring (close link after 1 download)
+        </span>
+      </button>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 justify-center mt-4">
         <CancelButton onClick={onCancel} />
         <StartButton onClick={onStart} />
       </div>
-    </>
+    </section>
   )
 }
 
@@ -162,14 +230,15 @@ function UploadingState({
   onStop: () => void
 }): JSX.Element {
   return (
-    <>
-      <TitleText>
-        You are sharing {pluralize(uploadedFiles.length, 'file', 'files')}.
-      </TitleText>
-      <SubtitleText>
-        Keep this tab open. CoffeeShare transfers files directly — nothing is
-        stored.
-      </SubtitleText>
+    <section className="w-full max-w-4xl">
+      <div className="w-full mb-5 md:mb-6 px-1">
+        <h2 className="heading-display text-primary text-3xl md:text-4xl font-bold text-center md:text-left">
+          You are sharing {pluralize(uploadedFiles.length, 'file', 'files')}.
+        </h2>
+        <p className="text-secondary text-sm md:text-base mt-2 text-center md:text-left max-w-2xl">
+          Keep this tab open. CoffeeShare transfers files directly - nothing is stored.
+        </p>
+      </div>
       <WebRTCPeerProvider>
         <Uploader
           files={uploadedFiles}
@@ -178,7 +247,7 @@ function UploadingState({
           onStop={onStop}
         />
       </WebRTCPeerProvider>
-    </>
+    </section>
   )
 }
 
@@ -234,11 +303,12 @@ export default function UploadPage(): JSX.Element {
             transition={{ duration: 0.4 }}
           >
             <InitialState onDrop={handleDrop} />
+            <MarketingSections />
           </motion.div>
         ) : !uploading ? (
           <motion.div
             key="confirm"
-            className="flex flex-col items-center w-full space-y-6"
+            className="flex flex-col items-center w-full space-y-6 pt-4"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -274,78 +344,6 @@ export default function UploadPage(): JSX.Element {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {!uploadedFiles.length && (
-        <section className="mt-32 w-full flex flex-col items-center text-center pb-20 border-t border-white/5 pt-20">
-          <h2 className="text-4xl font-black tracking-tight text-white mb-16">How CoffeeShare Works</h2>
-          
-          <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 w-full max-w-5xl mb-24">
-            {/* The Old Way */}
-            <div className="flex-1 bg-stone-900/50 backdrop-blur-sm border border-white/5 rounded-3xl p-8 flex flex-col items-center relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-stone-800 to-stone-600" />
-              <div className="text-stone-400 font-bold uppercase tracking-widest text-xs mb-8">The Old Way</div>
-              
-              <div className="flex flex-col items-center w-full gap-4">
-                <div className="flex items-center justify-between w-full px-4">
-                  <div className="w-12 h-12 bg-stone-800 rounded-xl flex items-center justify-center border border-white/5">💻</div>
-                  <div className="flex-1 h-px bg-stone-800 relative mx-2">
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-stone-600 rotate-45"></div>
-                  </div>
-                  <div className="w-16 h-16 bg-stone-800 rounded-full flex items-center justify-center border border-white/5 shadow-inner text-2xl">☁️</div>
-                  <div className="flex-1 h-px bg-stone-800 relative mx-2">
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-stone-600 rotate-45"></div>
-                  </div>
-                  <div className="w-12 h-12 bg-stone-800 rounded-xl flex items-center justify-center border border-white/5">📱</div>
-                </div>
-                <ul className="text-stone-500 text-sm text-left w-full max-w-[200px] mt-4 space-y-2">
-                  <li className="flex items-center gap-2"><span className="text-red-500/70">✗</span> Stored on their servers</li>
-                  <li className="flex items-center gap-2"><span className="text-red-500/70">✗</span> Strict file size limits</li>
-                  <li className="flex items-center gap-2"><span className="text-red-500/70">✗</span> Slower transfers</li>
-                </ul>
-              </div>
-            </div>
-            
-            {/* The VS Badge */}
-            <div className="hidden md:flex items-center justify-center w-12 z-10 -mx-9">
-              <div className="w-10 h-10 bg-black rounded-full border border-white/10 flex items-center justify-center text-stone-500 text-xs font-bold italic shadow-2xl shadow-black">
-                VS
-              </div>
-            </div>
-
-            {/* CoffeeShare Way */}
-            <div className="flex-1 bg-gradient-to-b from-[#f37021]/10 to-transparent backdrop-blur-md border border-[#f37021]/30 rounded-3xl p-8 flex flex-col items-center relative overflow-hidden shadow-[0_0_50px_rgba(243,112,33,0.05)]">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#f37021] to-[#ff985c]" />
-              <div className="text-[#f37021] font-bold uppercase tracking-widest text-xs mb-8">With CoffeeShare</div>
-              
-              <div className="flex flex-col items-center w-full gap-4">
-                <div className="flex items-center justify-between w-full px-4">
-                  <div className="w-12 h-12 bg-[#f37021]/20 rounded-xl flex items-center justify-center border border-[#f37021]/40 text-xl shadow-[0_0_15px_rgba(243,112,33,0.3)]">💻</div>
-                  <div className="flex-1 h-0.5 bg-gradient-to-r from-[#f37021]/50 to-[#f37021] relative mx-3">
-                    <div className="absolute left-1/2 -top-6 -translate-x-1/2 text-[10px] text-[#f37021] font-mono font-bold whitespace-nowrap">Direct P2P</div>
-                    <div className="absolute left-1/2 top-4 -translate-x-1/2 text-[10px] text-[#f37021]/70 font-mono whitespace-nowrap opacity-75 animate-pulse">Encrypted</div>
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-[#f37021] rotate-45 shadow-[0_0_5px_rgba(243,112,33,0.5)]"></div>
-                  </div>
-                  <div className="w-12 h-12 bg-[#f37021]/20 rounded-xl flex items-center justify-center border border-[#f37021]/40 text-xl shadow-[0_0_15px_rgba(243,112,33,0.3)]">📱</div>
-                </div>
-                <ul className="text-stone-300 text-sm text-left w-full max-w-[200px] mt-4 space-y-2">
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> No server storage</li>
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Infinite file size</li>
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Lightning fast</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="max-w-3xl text-stone-400 space-y-6 text-lg leading-relaxed font-medium">
-            <p>
-              We are a <strong className="text-stone-200 font-bold">free and independent</strong> peer-to-peer (P2P) file sharing service that prioritizes your privacy. We store absolutely nothing online. 
-            </p>
-            <p>
-              Simply close your browser to stop sending. Our mission is to put data safely back into your hands, exactly where it belongs.
-            </p>
-          </div>
-        </section>
-      )}
     </PageWrapper>
   )
 }

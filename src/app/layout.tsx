@@ -4,21 +4,30 @@ import '../styles.css'
 import { ThemeProvider } from '../components/ThemeProvider'
 import { ModeToggle } from '../components/ModeToggle'
 import CoffeeShareQueryClientProvider from '../components/QueryClientProvider'
-import { Viewport } from 'next'
+import { Metadata, Viewport } from 'next'
 import { ViewTransitions } from 'next-view-transitions'
 import { Toaster } from 'react-hot-toast'
 
-export const metadata = {
-  title: 'CoffeeShare — Brew & send files, peer-to-peer.',
+export const metadata: Metadata = {
+  title: 'CoffeeShare | peer-to-peer file sharing',
   description:
-    'Free peer-to-peer file transfers in your browser — no upload limits, no sign-up required. Powered by WebRTC.',
-  charSet: 'utf-8',
+    'Peer-to-peer file sharing in your browser: encrypted direct transfer, password protection, one-time links, and live chat.',
+  alternates: {
+    canonical: 'https://coffeeshare.app',
+  },
   openGraph: {
     url: 'https://coffeeshare.app',
-    title: 'CoffeeShare — Brew & send files, peer-to-peer.',
+    title: 'CoffeeShare | peer-to-peer file sharing',
     description:
-      'Free peer-to-peer file transfers in your browser — no upload limits, no sign-up required.',
-    images: [{ url: '/images/fb.png' }],
+      'Encrypted direct browser-to-browser transfer with password lock and one-time links.',
+    images: [{ url: '/images/share-card.png', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CoffeeShare | peer-to-peer file sharing',
+    description:
+      'Encrypted direct browser-to-browser transfer with password lock and one-time links.',
+    images: ['/images/share-card.png'],
   },
 }
 
@@ -34,12 +43,36 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }): React.ReactElement {
+  const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CoffeeShare',
+    applicationCategory: 'CommunicationApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description:
+      'Peer-to-peer file sharing app with end-to-end encryption, password-protected links, and one-time burn-after-pour shares.',
+    url: 'https://coffeeshare.app',
+  }
+
   return (
     <ViewTransitions>
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        </head>
         <body>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <CoffeeShareQueryClientProvider>
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+              />
               <main>{children}</main>
               <Footer />
               <ModeToggle />
@@ -47,9 +80,9 @@ export default function RootLayout({
                 position="bottom-right"
                 toastOptions={{
                   style: {
-                    background: '#1C1917',
-                    color: '#F5F5F4',
-                    border: '1px solid rgba(255,255,255,0.05)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-subtle)',
                   },
                 }}
               />

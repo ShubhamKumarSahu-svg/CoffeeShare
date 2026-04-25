@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Gamepad2, X, Zap, Grid3X3 } from 'lucide-react'
+import { Gamepad2, Grid3X3, Sparkles, Trophy, X, Zap } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ConnectFour from './games/ConnectFour'
 import TicTacToe from './games/TicTacToe'
@@ -32,7 +32,7 @@ export default function GameHub({
   gameState: any
   sendGameState: (state: any) => void
   currentUserRole: 'uploader' | 'downloader'
-}) {
+}): React.ReactElement | null {
   const [isOpen, setIsOpen] = useState(false)
   const [activeGame, setActiveGame] = useState<GameId | null>(null)
 
@@ -105,7 +105,8 @@ export default function GameHub({
             exit={{ opacity: 0, scale: 0.9 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4"
           >
-            <div className="surface rounded-3xl p-6 relative max-w-lg w-full flex flex-col items-center max-h-[90vh] overflow-y-auto">
+            <div className="surface rounded-3xl p-6 relative max-w-4xl w-full flex flex-col items-center max-h-[90vh] overflow-y-auto border border-[#f37021]/20">
+              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(243,112,33,0.16),transparent_50%)]" />
               <button
                 onClick={() => { setIsOpen(false); setActiveGame(null) }}
                 className="absolute top-4 right-4 text-stone-400 hover:text-stone-200 z-10"
@@ -115,28 +116,57 @@ export default function GameHub({
 
               {!activeGame ? (
                 <>
-                  <h2 className="text-2xl font-black text-white mb-2 flex items-center gap-3">
+                  <h2 className="text-3xl md:text-4xl font-black text-white mb-2 flex items-center gap-3 z-10">
                     <span className="p-2 bg-[#f37021]/20 text-[#f37021] rounded-xl">
                       <Gamepad2 className="w-6 h-6" />
                     </span>
                     Game Lobby
                   </h2>
-                  <p className="text-stone-400 text-sm mb-6 text-center">
+                  <p className="text-stone-300 text-sm md:text-base mb-4 text-center z-10">
                     Bored waiting for the transfer? Challenge your peer to a quick match!
                   </p>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full mb-6 z-10">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-left">
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-stone-100">
+                        <Sparkles className="w-4 h-4 text-[#f37021]" />
+                        Instant Match
+                      </div>
+                      <p className="text-xs text-stone-400 mt-2">
+                        Send an invite and start as soon as your peer accepts.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-left">
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-stone-100">
+                        <Trophy className="w-4 h-4 text-[#f37021]" />
+                        Keep It Competitive
+                      </div>
+                      <p className="text-xs text-stone-400 mt-2">
+                        Play while files transfer, no extra setup needed.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-left">
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-stone-100">
+                        <Zap className="w-4 h-4 text-[#f37021]" />
+                        Real-time Sync
+                      </div>
+                      <p className="text-xs text-stone-400 mt-2">
+                        Moves are synced over your active peer connection.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full mb-4 z-10">
                     {GAMES.map(g => (
                       <motion.button
                         key={g.id}
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => selectGame(g.id)}
-                        className="flex flex-col items-center gap-2 p-5 rounded-2xl border-2 border-stone-700 bg-stone-800/50 hover:border-[#f37021]/50 hover:bg-[#f37021]/5 transition-all"
+                        className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-black/20 hover:border-[#f37021]/40 hover:shadow-[0_20px_50px_-30px_rgba(243,112,33,0.9)] transition-all"
                       >
                         <div className="text-[#f37021]">{g.icon}</div>
-                        <span className="text-stone-200 font-semibold text-sm">{g.name}</span>
-                        <span className="text-stone-500 text-xs">{g.desc}</span>
+                        <span className="text-stone-100 font-semibold text-sm text-center">{g.name}</span>
+                        <span className="text-stone-400 text-xs text-center">{g.desc}</span>
                       </motion.button>
                     ))}
                   </div>

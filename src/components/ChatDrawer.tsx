@@ -55,7 +55,7 @@ export default function ChatDrawer({
           setIsOpen(true)
           setUnreadCount(0)
         }}
-        className="fixed bottom-6 right-6 p-4 bg-amber-500 text-stone-950 rounded-full shadow-lg hover:bg-amber-400 transition-colors z-40 group flex items-center gap-2"
+        className="fixed bottom-6 right-6 p-4 bg-gradient-to-br from-[#f37021] to-[#ff985c] text-white rounded-full shadow-lg hover:brightness-110 transition-colors z-40 group flex items-center gap-2"
       >
         <MessageSquare className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -72,12 +72,12 @@ export default function ChatDrawer({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 w-80 h-96 surface rounded-2xl flex flex-col z-50 overflow-hidden shadow-2xl border border-stone-800"
+            className="fixed bottom-24 right-6 w-80 h-96 surface rounded-2xl flex flex-col z-50 overflow-hidden shadow-2xl border border-[#f37021]/30"
           >
             {/* Header */}
-            <div className="bg-stone-900/80 p-4 border-b border-stone-800 flex justify-between items-center">
+            <div className="bg-stone-900/85 p-4 border-b border-white/10 flex justify-between items-center">
               <h3 className="font-bold text-stone-100 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-amber-500" />
+                <MessageSquare className="w-4 h-4 text-[#f37021]" />
                 Coffeehouse Chat
               </h3>
               <button
@@ -106,7 +106,7 @@ export default function ChatDrawer({
                       <div
                         className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
                           isMe
-                            ? 'bg-amber-500 text-stone-950 rounded-tr-sm'
+                            ? 'bg-[#f37021] text-white rounded-tr-sm'
                             : 'bg-stone-800 text-stone-100 rounded-tl-sm'
                         }`}
                       >
@@ -134,7 +134,7 @@ export default function ChatDrawer({
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="p-2 bg-amber-500 text-stone-950 rounded-xl hover:bg-amber-400 disabled:opacity-50 disabled:hover:bg-amber-500 transition-colors"
+                className="p-2 bg-[#f37021] text-white rounded-xl hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 transition-colors"
               >
                 <Send className="w-4 h-4" />
               </button>

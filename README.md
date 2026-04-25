@@ -85,5 +85,34 @@ Instead of forcing users to download `.zip` files for large folder structures, C
 * **File Handling**: StreamSaver.js (Service Workers)
 * **Storage (Optional)**: Redis
 
+## 🎨 Theme Tokens (Design System)
+
+CoffeeShare uses centralized semantic tokens in `src/styles.css`.
+
+### Typography Tokens
+- `--font-display`: Space Grotesk
+- `--font-body`: Manrope
+- `--font-mono`: JetBrains Mono
+
+### Core Color Tokens (OKLCH)
+- `--bg-app`, `--bg-elevated`, `--bg-card`, `--bg-muted`, `--bg-overlay`
+- `--text-primary`, `--text-secondary`, `--text-muted`, `--text-inverse`
+- `--brand`, `--brand-strong`, `--brand-soft`
+- `--success`, `--danger`
+- `--border-subtle`, `--border-strong`, `--ring`
+
+### Motion Tokens
+- `--ease-standard`
+- `--dur-fast`, `--dur-med`, `--dur-slow`
+
+### Radius Tokens
+- `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-xl`, `--radius-2xl`, `--radius-pill`
+
+### Component Utility Classes
+- Buttons: `.btn`, `.btn-hero`, `.btn-ghost`, `.btn-ember`
+- Surfaces: `.surface`, `.panel`, `.bg-card`, `.bg-elevated`
+- Text semantics: `.text-primary`, `.text-secondary`, `.text-muted`, `.text-brand`
+- Layout accents: `.nav-pill`, `.mesh-overlay`, `.noise-overlay`
+
 ## 📝 License
 BSD-3-Clause License

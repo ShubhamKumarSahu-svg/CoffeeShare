@@ -184,8 +184,11 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="flex flex-col gap-2 bg-stone-900 border border-stone-700 p-2 rounded-2xl shadow-2xl backdrop-blur-xl"
+              className="flex flex-col gap-2 bg-stone-900/95 border border-[#f37021]/30 p-2 rounded-2xl shadow-2xl backdrop-blur-xl min-w-[220px]"
             >
+              <div className="px-2 pt-1 pb-2 border-b border-white/10 text-xs uppercase tracking-wider text-stone-400">
+                {isUploader ? 'Host Call Controls' : 'Guest Call Controls'}
+              </div>
               <button 
                 onClick={() => initiateCall('audio')}
                 disabled={!remotePeerId}
@@ -259,11 +262,11 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
       } : { 
         opacity: 1, scale: 1, y: 0, x: 0, width: '320px', height: 'auto', left: 'auto', top: 'auto', bottom: '120px', right: '24px'
       }}
-      className={`fixed z-50 bg-stone-900 border border-stone-700 shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${isMaximized ? 'rounded-3xl' : 'rounded-2xl cursor-move'}`}
+      className={`fixed z-50 bg-stone-900 border border-[#f37021]/30 shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${isMaximized ? 'rounded-3xl' : 'rounded-2xl cursor-move'}`}
       style={isMaximized ? { transform: 'translateX(-50%)' } : {}}
     >
       {/* Header */}
-      <div className="bg-stone-950/80 backdrop-blur-md p-3 flex justify-between items-center border-b border-stone-800 absolute top-0 left-0 right-0 z-20">
+      <div className="bg-stone-950/90 backdrop-blur-md p-3 flex justify-between items-center border-b border-white/10 absolute top-0 left-0 right-0 z-20">
         <div className="flex items-center gap-2">
           {callType === 'audio' ? <Phone className="w-4 h-4 text-[#f37021]" /> : <Video className="w-4 h-4 text-[#3b82f6]" />}
           <span className="text-xs font-bold text-stone-200 uppercase tracking-wider">{callType === 'audio' ? 'Voice Call' : 'Video Call'}</span>
@@ -276,6 +279,7 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
       </div>
 
       <div className="relative flex-1 bg-[#0c0a09] flex flex-col w-full h-full pt-[45px]">
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(243,112,33,0.18),transparent_40%)]" />
         {/* Remote View */}
         {callState === 'connected' && remoteStream ? (
           callType === 'audio' ? (
@@ -300,6 +304,9 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
               <PhoneCall className="w-6 h-6 text-stone-400" />
             </div>
             <span className="animate-pulse font-medium">Calling peer...</span>
+            <span className="text-xs mt-2 text-stone-500">
+              {isUploader ? 'Waiting for receiver to answer' : 'Waiting for sender to answer'}
+            </span>
           </div>
         )}
 

@@ -16,10 +16,10 @@ export default function UploadFileList({
   const items = files.map((f: UploadedFileLike, i: number) => (
     <div
       key={f.fileName}
-      className="w-full border-b border-[#e8e4dd] dark:border-[#2a2a27] last:border-0 hover:bg-[#faf8f4] dark:hover:bg-[#1e1e1c] transition-colors duration-150"
+      className="w-full border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--bg-muted)] transition-colors duration-150"
     >
       <div className="flex justify-between items-center py-3 pl-4 pr-3">
-        <p className="truncate text-sm font-medium text-[#3a3a36] dark:text-[#c0bdb8] mono">
+        <p className="truncate text-sm font-medium text-[var(--text-secondary)] mono">
           {f.fileName}
         </p>
         <div className="flex items-center gap-2">
@@ -27,7 +27,7 @@ export default function UploadFileList({
           {onRemove && (
             <button
               onClick={() => onRemove?.(i)}
-              className="text-[#c0bbb3] hover:text-[#e05a4f] dark:text-[#4a4a44] dark:hover:text-[#e05a4f] focus:outline-none px-1 transition-colors duration-200"
+              className="text-[var(--text-muted)] hover:text-[var(--danger)] focus:outline-none px-1 transition-colors duration-200"
             >
               ✕
             </button>

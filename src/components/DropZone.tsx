@@ -2,6 +2,7 @@ import React, { JSX, useState, useCallback, useEffect, useRef } from 'react'
 import { extractFileList } from '../fs'
 import { motion } from 'framer-motion'
 import { FolderSync } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 export default function DropZone({
   onDrop,
@@ -9,7 +10,19 @@ export default function DropZone({
   onDrop: (files: File[]) => void
 }): JSX.Element {
   const [isDragging, setIsDragging] = useState(false)
+  const [didDrop, setDidDrop] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const celebrateDrop = useCallback((): void => {
+    setDidDrop(true)
+    confetti({
+      particleCount: 28,
+      spread: 56,
+      scalar: 0.7,
+      origin: { y: 0.65 },
+    })
+    window.setTimeout(() => setDidDrop(false), 700)
+  }, [])
 
   const handleDragEnter = useCallback((e: DragEvent) => {
     e.preventDefault()
@@ -47,9 +60,10 @@ export default function DropZone({
       if (e.dataTransfer) {
         const files = await extractFileList(e)
         onDrop(files)
+        celebrateDrop()
       }
     },
-    [onDrop],
+    [onDrop, celebrateDrop],
   )
 
   const handleClick = useCallback(() => {
@@ -61,9 +75,10 @@ export default function DropZone({
       if (e.target.files) {
         const files = Array.from(e.target.files)
         onDrop(files)
+        celebrateDrop()
       }
     },
-    [onDrop],
+    [onDrop, celebrateDrop],
   )
 
   const handleWormholeClick = useCallback(async (e: React.MouseEvent) => {
@@ -130,9 +145,12 @@ export default function DropZone({
       <motion.div
         layoutId="upload-container"
         id="drop-zone-button"
-        className={`group relative block cursor-pointer w-full max-w-sm py-16 px-8 rounded-[2rem] transition-all duration-500 ease-out outline-none border-[2px] backdrop-blur-2xl shadow-2xl ${isDragging
-          ? 'border-[#f37021] bg-[#f37021]/10 shadow-[0_0_50px_rgba(243,112,33,0.3)] scale-105'
-          : 'border-stone-500/30 bg-stone-900/60 hover:bg-stone-800/80 hover:border-stone-400/50 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]'
+        className={`group relative block cursor-pointer w-full max-w-sm md:max-w-md py-12 md:py-16 px-6 md:px-8 rounded-[2rem] transition-all duration-500 ease-out outline-none border-[2px] backdrop-blur-2xl shadow-2xl ${
+          isDragging
+            ? 'border-[var(--brand)] bg-[var(--brand-soft)] scale-105'
+            : didDrop
+              ? 'border-[var(--success)] bg-[oklch(0.72_0.14_145_/20%)]'
+              : 'border-[var(--border-subtle)] bg-[var(--bg-card)]/95 hover:bg-[var(--bg-elevated)] hover:border-[var(--border-strong)]'
           }`}
         onClick={handleClick}
         whileHover={{ scale: 1.03, y: -5 }}
@@ -141,33 +159,36 @@ export default function DropZone({
         animate={{ opacity: 1, y: 0 }}
       >
         {/* Subtle inner glowing border effect on hover */}
-        <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-[var(--bg-muted)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         
         <div className="flex flex-col items-center gap-6 relative z-10">
           <motion.div
             animate={{ scale: isDragging ? 1.2 : 1, rotate: isDragging ? 90 : 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className={`w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${isDragging
-              ? 'border-[#f37021] text-[#f37021] bg-[#f37021]/20 shadow-[0_0_30px_rgba(243,112,33,0.5)]'
-              : 'border-stone-500/50 text-stone-300 bg-stone-800/50 group-hover:border-[#f37021] group-hover:text-[#f37021] group-hover:bg-[#f37021]/10 group-hover:shadow-[0_0_20px_rgba(243,112,33,0.3)]'
+            className={`w-[4.5rem] h-[4.5rem] md:w-20 md:h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+              isDragging
+                ? 'border-[var(--brand)] text-brand bg-[var(--brand-soft)]'
+                : didDrop
+                  ? 'border-[var(--success)] text-[var(--success)] bg-[oklch(0.72_0.14_145_/18%)]'
+                  : 'border-[var(--border-strong)] text-secondary bg-[var(--bg-muted)] group-hover:border-[var(--brand)] group-hover:text-brand group-hover:bg-[var(--brand-soft)]'
               }`}
           >
-            <span className="text-4xl font-light leading-none mb-1 group-hover:animate-pulse">+</span>
+            <span className="text-4xl font-light leading-none mb-1 group-hover:animate-pulse">{didDrop ? '✓' : '+'}</span>
           </motion.div>
           <div className="text-center space-y-3">
-              <span className="block text-xl font-semibold text-white tracking-tight drop-shadow-md">
-                {isDragging ? 'Drop to start sharing' : 'Share Files Instantly'}
+              <span className="block text-2xl md:text-xl font-semibold text-primary tracking-tight drop-shadow-md">
+                {isDragging ? 'Drop to start sharing' : didDrop ? 'Link is brewing...' : 'Share files instantly'}
               </span>
-              <span className="block text-sm text-stone-400 font-medium">
+              <span className="block text-base md:text-sm text-muted font-medium">
                 {isDragging ? 'Drop files here' : 'Click to browse or drag & drop'}
               </span>
             </div>
-            <div className="flex justify-center mt-8 pt-4 border-t border-stone-700/50 w-full relative">
+            <div className="flex justify-center mt-8 pt-4 border-t border-[var(--border-subtle)] w-full relative">
               <button
                 onClick={handleWormholeClick}
-                className="flex items-center gap-2 px-5 py-2.5 bg-stone-800/80 hover:bg-stone-700/80 border border-stone-600 hover:border-[#f37021]/50 rounded-xl text-stone-200 transition-all text-sm font-bold z-10 hover:shadow-[0_0_15px_rgba(243,112,33,0.2)] group/btn"
+                className="btn btn-ghost text-sm z-10 group/btn"
               >
-                <FolderSync className="w-4 h-4 text-[#f37021] group-hover/btn:animate-spin-slow" />
+                <FolderSync className="w-4 h-4 text-brand group-hover/btn:animate-spin-slow" />
                 Live Folder Sync
               </button>
             </div>

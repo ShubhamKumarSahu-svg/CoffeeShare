@@ -14,6 +14,20 @@ export default function StaggerText({ text, className = '', delay = 0 }: Stagger
   useEffect(() => {
     if (!containerRef.current) return
     const letters = containerRef.current.querySelectorAll('.stagger-letter')
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (prefersReducedMotion) {
+      letters.forEach((letter) => {
+        ;(letter as HTMLElement).style.opacity = '1'
+        ;(letter as HTMLElement).style.transform = 'none'
+      })
+      return
+    }
+
+    letters.forEach((letter) => {
+      ;(letter as HTMLElement).style.opacity = '0'
+      ;(letter as HTMLElement).style.transform = 'translateY(20px) rotateX(90deg)'
+    })
 
     anime({
       targets: letters,
@@ -34,14 +48,14 @@ export default function StaggerText({ text, className = '', delay = 0 }: Stagger
             <span
               key={`${wordIdx}-${charIdx}`}
               className="stagger-letter inline-block"
-              style={{ opacity: 0 }}
+              style={{ opacity: 1 }}
             >
               {char}
             </span>
           ))}
           {/* Add a non-breaking space after the word, except for the last word */}
           {wordIdx < arr.length - 1 && (
-            <span className="stagger-letter inline-block" style={{ opacity: 0 }}>
+            <span className="stagger-letter inline-block" style={{ opacity: 1 }}>
               &nbsp;
             </span>
           )}

@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 type Symbol = 'X' | 'O' | null
 
@@ -19,7 +18,6 @@ export default function TicTacToe({
   const [winLine, setWinLine] = useState<number[] | null>(null)
   const [scores, setScores] = useState({ X: 0, O: 0 })
 
-  // Uploader = X, Downloader = O
   const mySymbol: 'X' | 'O' = currentUserRole === 'uploader' ? 'X' : 'O'
   const isMyTurn = turn === mySymbol && !winner
 
@@ -37,10 +35,8 @@ export default function TicTacToe({
     return { winner: null, line: null }
   }, [])
 
-  // Handle incoming game state
   useEffect(() => {
     if (!gameState || gameState.game !== 'tictactoe') return
-
     if (gameState.type === 'move') {
       setBoard(gameState.board)
       setTurn(gameState.turn)
@@ -60,21 +56,17 @@ export default function TicTacToe({
 
   const handleClick = useCallback((i: number) => {
     if (board[i] || winner || turn !== mySymbol) return
-
     const newBoard = [...board]
     newBoard[i] = mySymbol
     const nextTurn = mySymbol === 'X' ? 'O' : 'X'
-
     setBoard(newBoard)
     setTurn(nextTurn)
-
     const { winner: w, line } = checkWinner(newBoard)
     if (w) {
       setWinner(w)
       setWinLine(line)
       setScores(prev => ({ ...prev, [w]: prev[w] + 1 }))
     }
-
     sendGameState({ game: 'tictactoe', type: 'move', board: newBoard, turn: nextTurn })
   }, [board, winner, turn, mySymbol, checkWinner, sendGameState])
 
@@ -89,78 +81,55 @@ export default function TicTacToe({
   const isDraw = !winner && board.every(cell => cell !== null)
 
   const statusText = winner
-    ? winner === mySymbol ? 'You win! 🎉' : 'Opponent wins!'
-    : isDraw
-    ? "It's a draw! 🤝"
-    : isMyTurn
-    ? 'Your turn'
-    : "Opponent's turn..."
+    ? winner === mySymbol ? 'You win!' : 'Opponent wins!'
+    : isDraw ? "Draw!" : isMyTurn ? 'Your turn' : "Opponent's turn..."
 
   return (
     <div className="flex flex-col items-center gap-4 w-full select-none">
-      {/* Score */}
       <div className="flex items-center justify-between w-full px-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">X (Host)</span>
-          <span className={`text-xl font-mono font-black ${mySymbol === 'X' ? 'text-[#f37021]' : 'text-stone-300'}`}>{scores.X}</span>
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">X</span>
+          <span className={`text-xl font-mono font-black ${mySymbol === 'X' ? 'text-white' : 'text-stone-500'}`}>{scores.X}</span>
         </div>
-        <div className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-          isMyTurn ? 'bg-[#f37021]/15 text-[#f37021] border border-[#f37021]/30' : 'bg-stone-800/60 text-stone-500 border border-stone-700/50'
+        <div className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
+          isMyTurn ? 'bg-white/10 text-white border border-white/20' : 'bg-stone-800/60 text-stone-500 border border-stone-700/50'
         }`}>
           {statusText}
         </div>
         <div className="flex items-center gap-2">
-          <span className={`text-xl font-mono font-black ${mySymbol === 'O' ? 'text-blue-400' : 'text-stone-300'}`}>{scores.O}</span>
-          <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">O (Peer)</span>
+          <span className={`text-xl font-mono font-black ${mySymbol === 'O' ? 'text-white' : 'text-stone-500'}`}>{scores.O}</span>
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">O</span>
         </div>
       </div>
 
-      {/* Board */}
       <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-stone-900/50 border border-stone-800">
         {board.map((cell, i) => {
           const isWinCell = winLine?.includes(i)
           return (
-            <motion.button
+            <button
               key={i}
-              whileHover={!cell && !winner && turn === mySymbol ? { scale: 1.05 } : {}}
-              whileTap={!cell && !winner && turn === mySymbol ? { scale: 0.95 } : {}}
               onClick={() => handleClick(i)}
-              className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl text-4xl sm:text-5xl font-black flex items-center justify-center transition-all duration-300 border-2 ${
-                cell === 'X' ? `text-[#f37021] border-[#f37021]/50 bg-[#f37021]/15 ${isWinCell ? 'shadow-[0_0_20px_rgba(243,112,33,0.5)] scale-105' : 'shadow-[0_0_15px_rgba(243,112,33,0.3)]'}`
-                : cell === 'O' ? `text-blue-400 border-blue-400/50 bg-blue-400/15 ${isWinCell ? 'shadow-[0_0_20px_rgba(96,165,250,0.5)] scale-105' : 'shadow-[0_0_15px_rgba(96,165,250,0.3)]'}`
-                : turn === mySymbol && !winner ? 'border-stone-700/50 bg-stone-800/30 hover:bg-stone-700/40 hover:border-stone-600/80 cursor-pointer shadow-inner'
-                : 'border-stone-800/30 bg-stone-900/30 cursor-not-allowed opacity-70'
+              className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl text-4xl sm:text-5xl font-black flex items-center justify-center transition-colors duration-150 border-2 ${
+                cell === 'X' ? `text-white border-stone-600 bg-stone-800 ${isWinCell ? 'ring-2 ring-white/40' : ''}`
+                : cell === 'O' ? `text-stone-400 border-stone-600 bg-stone-800 ${isWinCell ? 'ring-2 ring-white/40' : ''}`
+                : turn === mySymbol && !winner ? 'border-stone-700/50 bg-stone-800/30 hover:bg-stone-700/40 hover:border-stone-600/80 cursor-pointer'
+                : 'border-stone-800/30 bg-stone-900/30 cursor-not-allowed opacity-50'
               }`}
             >
-              <AnimatePresence>
-                {cell && (
-                  <motion.span
-                    initial={{ scale: 0, rotate: -90 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: 'spring', bounce: 0.4 }}
-                  >
-                    {cell}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
+              {cell}
+            </button>
           )
         })}
       </div>
 
-      {/* Reset */}
-      <AnimatePresence>
-        {(winner || isDraw) && (
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={handleReset}
-            className="px-8 py-3 mt-2 bg-[#f37021] hover:bg-[#e0661e] text-white font-bold rounded-xl shadow-lg shadow-[#f37021]/20 transition-all"
-          >
-            Play Again
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {(winner || isDraw) && (
+        <button
+          onClick={handleReset}
+          className="px-8 py-3 mt-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/10 transition-colors"
+        >
+          Play Again
+        </button>
+      )}
     </div>
   )
 }

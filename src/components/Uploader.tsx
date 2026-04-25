@@ -244,10 +244,6 @@ export default function Uploader({
         className="surface col-span-1 md:col-span-3 rounded-3xl p-3 flex items-center gap-3"
       >
         <div className="flex-1 bg-[#0C0A09] rounded-2xl px-5 py-4 truncate font-mono text-stone-300 text-sm border border-stone-800 shadow-inner">
-          <div className="text-[10px] text-stone-500 uppercase tracking-wider mb-1 inline-flex items-center gap-1">
-            <Link2 className="w-3 h-3" />
-            Share Link
-          </div>
           {shortURL}
         </div>
         <CopyButton textToCopy={shortURL} />

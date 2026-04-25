@@ -1,14 +1,13 @@
 'use client'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Hand, Scissors, Square, RotateCcw } from 'lucide-react'
 
 type Choice = 'rock' | 'paper' | 'scissors'
 
-const CHOICES: { id: Choice; icon: React.ReactNode; color: string }[] = [
-  { id: 'rock', icon: <Hand className="w-8 h-8" />, color: 'bg-stone-600' },
-  { id: 'paper', icon: <Square className="w-8 h-8" />, color: 'bg-blue-600' },
-  { id: 'scissors', icon: <Scissors className="w-8 h-8" />, color: 'bg-[#f37021]' },
+const CHOICES: { id: Choice; icon: React.ReactNode; label: string }[] = [
+  { id: 'rock', icon: <Hand className="w-8 h-8" />, label: 'Rock' },
+  { id: 'paper', icon: <Square className="w-8 h-8" />, label: 'Paper' },
+  { id: 'scissors', icon: <Scissors className="w-8 h-8" />, label: 'Scissors' },
 ]
 
 function getResult(me: Choice, peer: Choice): 'win' | 'lose' | 'draw' {
@@ -32,7 +31,6 @@ export default function RockPaperScissors({
   const [result, setResult] = useState<'win' | 'lose' | 'draw' | null>(null)
   const [scores, setScores] = useState({ me: 0, peer: 0 })
 
-  // Refs to avoid stale closures
   const myChoiceRef = useRef<Choice | null>(null)
   const peerReadyRef = useRef(false)
   const revealSentRef = useRef(false)
@@ -43,24 +41,16 @@ export default function RockPaperScissors({
     sendGameState({ game: 'rps', type: 'reveal', choice })
   }, [sendGameState])
 
-  // Receive game state from peer
   useEffect(() => {
     if (!gameState || gameState.game !== 'rps') return
 
     if (gameState.type === 'choice-made') {
-      // Peer locked in their choice (hidden)
       peerReadyRef.current = true
-      // If I already chose, both are ready → send my reveal
-      if (myChoiceRef.current) {
-        sendReveal(myChoiceRef.current)
-      }
+      if (myChoiceRef.current) sendReveal(myChoiceRef.current)
     } else if (gameState.type === 'reveal') {
-      // Peer revealed — show result
       const peer = gameState.choice as Choice
       setPeerChoice(peer)
       setPhase('reveal')
-      // If we chose but haven't sent our reveal yet (choice-made was batched away),
-      // send it now so the other side also sees the result
       if (myChoiceRef.current) {
         sendReveal(myChoiceRef.current)
         const res = getResult(myChoiceRef.current, peer)
@@ -83,12 +73,8 @@ export default function RockPaperScissors({
     setMyChoice(c)
     myChoiceRef.current = c
     setPhase('waiting')
-    // Tell peer we chose (but not what)
     sendGameState({ game: 'rps', type: 'choice-made' })
-    // If peer was already ready, reveal immediately
-    if (peerReadyRef.current) {
-      sendReveal(c)
-    }
+    if (peerReadyRef.current) sendReveal(c)
   }, [sendGameState, sendReveal])
 
   const nextRound = useCallback(() => {
@@ -112,93 +98,62 @@ export default function RockPaperScissors({
       </div>
 
       {phase === 'choosing' && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <p className="text-stone-400 text-sm font-medium">Pick your weapon!</p>
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-stone-500 text-sm font-medium">Pick your weapon</p>
           <div className="flex justify-center gap-4">
             {CHOICES.map(c => (
-              <motion.button
+              <button
                 key={c.id}
-                whileHover={{ scale: 1.1, y: -5 }}
-                whileTap={{ scale: 0.9 }}
                 onClick={() => selectChoice(c.id)}
-                className={`w-20 h-20 rounded-2xl flex items-center justify-center ${c.color} shadow-lg text-white border-2 border-white/10`}
+                className="w-20 h-20 rounded-2xl flex flex-col items-center justify-center gap-1 bg-stone-800 border-2 border-stone-700 text-stone-300 hover:bg-stone-700 hover:border-stone-500 hover:text-white transition-colors"
               >
                 {c.icon}
-              </motion.button>
+                <span className="text-[10px] uppercase tracking-wider font-semibold">{c.label}</span>
+              </button>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {phase === 'waiting' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center gap-4 text-stone-300"
-        >
-          <div className="flex items-center gap-3">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${choiceInfo(myChoice)?.color} shadow-lg text-white`}>
-              {choiceInfo(myChoice)?.icon}
-            </div>
-            <span className="text-stone-500 text-sm">Locked in!</span>
+        <div className="flex flex-col items-center gap-4 text-stone-400">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-stone-800 border border-stone-700 text-white">
+            {choiceInfo(myChoice)?.icon}
           </div>
-          <p className="text-lg font-semibold animate-pulse">Waiting for opponent...</p>
-        </motion.div>
+          <p className="text-sm font-medium text-stone-500 animate-pulse">Waiting for opponent...</p>
+        </div>
       )}
 
-      <AnimatePresence>
-        {phase === 'reveal' && myChoice && peerChoice && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', bounce: 0.3 }}
-            className="flex flex-col items-center gap-6 w-full"
-          >
-            <h3 className={`text-3xl font-black uppercase tracking-widest ${
-              result === 'win' ? 'text-[#f37021]' : result === 'lose' ? 'text-red-400' : 'text-stone-300'
-            }`}>
-              {result === 'win' ? 'You Win!' : result === 'lose' ? 'You Lose!' : 'Draw!'}
-            </h3>
-            <div className="flex items-center justify-center gap-8 w-full">
-              <div className="flex flex-col items-center gap-2">
-                <motion.div
-                  initial={{ x: -40, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className={`w-24 h-24 rounded-2xl flex items-center justify-center ${choiceInfo(myChoice)?.color} shadow-lg text-white`}
-                >
-                  {choiceInfo(myChoice)?.icon}
-                </motion.div>
-                <span className="text-xs font-bold text-stone-400 uppercase">You</span>
+      {phase === 'reveal' && myChoice && peerChoice && (
+        <div className="flex flex-col items-center gap-6 w-full">
+          <h3 className={`text-2xl font-black uppercase tracking-widest ${
+            result === 'win' ? 'text-white' : result === 'lose' ? 'text-stone-500' : 'text-stone-400'
+          }`}>
+            {result === 'win' ? 'You Win!' : result === 'lose' ? 'You Lose!' : 'Draw!'}
+          </h3>
+          <div className="flex items-center justify-center gap-8 w-full">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-24 h-24 rounded-2xl flex items-center justify-center bg-stone-800 border-2 border-stone-600 text-white">
+                {choiceInfo(myChoice)?.icon}
               </div>
-              <span className="text-2xl font-bold text-stone-600">VS</span>
-              <div className="flex flex-col items-center gap-2">
-                <motion.div
-                  initial={{ x: 40, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className={`w-24 h-24 rounded-2xl flex items-center justify-center ${choiceInfo(peerChoice)?.color} shadow-lg text-white`}
-                >
-                  {choiceInfo(peerChoice)?.icon}
-                </motion.div>
-                <span className="text-xs font-bold text-stone-400 uppercase">Opponent</span>
-              </div>
+              <span className="text-xs font-bold text-stone-500 uppercase">You</span>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={nextRound}
-              className="px-6 py-2 mt-4 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-xl flex items-center gap-2"
-            >
-              <RotateCcw className="w-4 h-4" /> Next Round
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <span className="text-xl font-bold text-stone-700">VS</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-24 h-24 rounded-2xl flex items-center justify-center bg-stone-800 border-2 border-stone-600 text-stone-400">
+                {choiceInfo(peerChoice)?.icon}
+              </div>
+              <span className="text-xs font-bold text-stone-500 uppercase">Opponent</span>
+            </div>
+          </div>
+          <button
+            onClick={nextRound}
+            className="px-6 py-2 mt-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl flex items-center gap-2 border border-white/10 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" /> Next Round
+          </button>
+        </div>
+      )}
     </div>
   )
 }

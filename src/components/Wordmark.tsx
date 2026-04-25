@@ -8,6 +8,7 @@ export default function Wordmark(): JSX.Element {
       role="img"
     >
       <div className="w-10 h-10 flex items-center justify-center">
+        <svg
           className="transform group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 drop-shadow-[0_0_10px_rgba(243,112,33,0.4)]"
           width="36"
           height="36"

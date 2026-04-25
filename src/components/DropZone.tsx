@@ -172,7 +172,6 @@ export default function DropZone({
               </button>
             </div>
           </div>
-        </div>
       </motion.div>
     </>
   )

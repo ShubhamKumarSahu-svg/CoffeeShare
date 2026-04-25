@@ -1,27 +1,28 @@
-# Chapter 2: System Architecture & WebRTC
+# Chapter 2: WebRTC & Signaling Deep Dive
 
-## 2.1 The Connection Lifecycle (Signaling)
-WebRTC requires a "Signaling Server" just to introduce the two peers. Once introduced, the server steps away. In CoffeeShare, we use **Supabase** for signaling.
+## 2.1 The Supabase Signaling Layer
+WebRTC cannot connect two peers without them first discovering each other's IP addresses and media capabilities. This initial introduction is called "Signaling".
 
-**The Handshake Process:**
-1. **Host Initializes**: The Uploader navigates to the app. A PeerJS instance generates a unique `peerId`.
-2. **Channel Creation**: The Uploader creates a Supabase database entry mapping a short 6-digit code (or UUID) to their `peerId`.
-3. **Peer Joins**: The Downloader enters the short code. The frontend queries Supabase to fetch the Uploader's `peerId`.
-4. **SDP Exchange**: PeerJS uses this ID to exchange Session Description Protocol (SDP) packets (which contain IP addresses and media capabilities).
-5. **Direct Connection**: A secure P2P `RTCDataChannel` is established. Supabase is no longer needed.
+In CoffeeShare, we use **Supabase (PostgreSQL Realtime)**.
+*   **`useUploaderChannel.ts`**: When a user drops a file, we generate a random 6-character room code (e.g., `A4X9B2`) and save it to the `channels` table in Supabase, along with their `PeerJS` ID.
+*   **`useDownloader.ts`**: The receiver enters `A4X9B2`, queries Supabase, retrieves the Uploader's `PeerJS` ID, and initiates the WebRTC handshake.
+*   Once connected, Supabase is entirely out of the loop.
 
-## 2.2 NAT Traversal (STUN & TURN)
-Most devices sit behind a router (NAT - Network Address Translation) and don't know their own public IP address.
-- **STUN Server**: A simple echo server. The device asks "What is my public IP?", the STUN server replies. This works for ~80% of consumer networks.
-- **TURN Server (Metered.ca)**: If the network has strict corporate firewalls (Symmetric NAT), P2P fails. A TURN server acts as an encrypted cloud relay. The data is still E2E encrypted, but the TURN server bounces the packets between peers. CoffeeShare uses a secure `/api/ice` Next.js route to dynamically fetch authenticated TURN credentials from Metered.ca, ensuring robust connectivity on *any* network.
+## 2.2 NAT Traversal: ICE, STUN, and TURN
+Most internet users sit behind a NAT (Network Address Translation) router, meaning their devices have local IPs (like `192.168.1.5`) rather than public IPs.
 
-## 2.3 The Chunking Engine (Data Transfer)
-Browsers cannot load a 50GB file into RAM. CoffeeShare utilizes a highly optimized streaming architecture.
-1. **File Blob Slicing**: Using the native HTML5 `File.slice()` API, the file is read in small chunks (e.g., 64KB).
-2. **ArrayBuffer Transmission**: Chunks are sent sequentially over the `RTCDataChannel` as raw binary `ArrayBuffers`.
-3. **Reconstruction**: The Downloader receives chunks. Instead of holding them in RAM, they are streamed directly to the hard drive using the powerful **File System Access API** (if supported) or accumulated into a `Blob` and downloaded via an Object URL fallback.
+1.  **Direct Connection Attempt**: WebRTC tries to connect locally.
+2.  **STUN Fallback**: If not on the same network, the browser pings a STUN server (like Google's public STUN). The server replies with the router's public IP. The browser then attempts "UDP Hole Punching".
+3.  **TURN Fallback (`Metered.ca`)**: If the router uses Symmetric NAT (common in schools and corporations), UDP hole punching fails. The connection routes through a TURN server.
+    *   **Implementation**: Look at `src/app/api/ice/route.ts`. Because TURN servers cost money, they require authentication. Our Next.js backend securely fetches time-limited credentials from Metered.ca using our secret API key (`METERED_TURN_API_KEY`) and passes them securely to the frontend `PeerJS` configuration.
 
-## 2.4 Reliability Layer
-WebRTC Data Channels can drop packets if the buffer overflows.
-- CoffeeShare uses `channel.bufferedAmount` to pause reading the file from the disk if the network buffer gets too full.
-- It includes a heartbeat mechanism to detect disconnections.
+## 2.3 The `PeerJS` Wrapper
+CoffeeShare abstracts WebRTC complexities via `PeerJS`.
+*   **`WebRTCProvider.tsx`**: A React Context provider that initializes the `Peer` instance and fetches the ICE servers from our API route on mount.
+*   **Data Channels (`peer.connect`)**: Used for files, chat, and game state.
+*   **Media Channels (`peer.call`)**: Used specifically for the VideoChat component.
+
+## 2.4 The Custom Decline Protocol
+WebRTC doesn't have a native "Ringing / Decline" event bus. 
+*   In `VideoChat.tsx`, when a peer receives a call, they don't immediately answer. They show an "Incoming Call" modal.
+*   If they hit **Decline**, they open a quick `peer.connect()` data channel, send `{ type: 'CALL_DECLINED' }`, and instantly close it. The caller's `on('data')` listener intercepts this and terminates the "Calling..." UI with a toast notification.

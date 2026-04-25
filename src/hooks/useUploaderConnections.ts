@@ -526,10 +526,10 @@ export function useUploaderConnections(
   }
 
   const sendGameState = (state: any) => {
+    console.log('[UploaderConnections] sendGameState called with:', state);
     connections.forEach((c) => {
-      if (c.dataConnection.open) {
-        c.dataConnection.send({ type: MessageType.GameState, state })
-      }
+      console.log(`[UploaderConnections] sending to peer (open: ${c.dataConnection.open})`);
+      c.dataConnection.send({ type: MessageType.GameState, state })
     })
   }
 

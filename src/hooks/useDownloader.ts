@@ -272,7 +272,12 @@ export function useDownloader(uploaderPeerID: string): {
 
   const sendGameState = useCallback(
     (state: any) => {
-      if (!dataConnection) return
+      console.log('[Downloader] sendGameState called with:', state);
+      if (!dataConnection) {
+        console.warn('[Downloader] dataConnection is null, cannot send game state');
+        return
+      }
+      console.log(`[Downloader] sending to peer (open: ${dataConnection.open})`);
       dataConnection.send({ type: MessageType.GameState, state })
     },
     [dataConnection],

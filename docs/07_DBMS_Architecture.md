@@ -155,3 +155,4 @@ The `TransferHistory` component (`src/components/TransferHistory.tsx`) provides 
 - Top file types: grouped by MIME type with total size per type
 <!-- . -->
 <!-- . -->
+<!-- . -->

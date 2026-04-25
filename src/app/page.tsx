@@ -43,43 +43,44 @@ function InitialState({
   onDrop: (files: UploadedFile[]) => void
 }): JSX.Element {
   return (
-    <div className="w-full flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24 mt-10 md:mt-20">
-      {/* Left side: DropZone */}
-      <div className="w-full md:w-5/12 flex justify-center md:justify-end shrink-0">
-         <DropZone onDrop={onDrop} />
-      </div>
-      
-      {/* Right side: Text and features */}
-      <div className="w-full md:w-7/12 flex flex-col items-start text-left space-y-6 relative z-10">
-        <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-stone-900 dark:text-white leading-[1.05] drop-shadow-md">
-          <StaggerText text="Share files directly" />
+    <div className="w-full flex flex-col md:flex-row items-center justify-between gap-16 lg:gap-20 mt-12 md:mt-24">
+      {/* Right side: Text and features (Now on the left for better reading flow) */}
+      <div className="w-full md:w-1/2 flex flex-col items-start text-left space-y-8 relative z-10 order-2 md:order-1">
+        <h1 className="text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-white leading-[1.1] drop-shadow-2xl">
+          <StaggerText text="Share files" />
           <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f37021] via-[#ff985c] to-[#e0661e] drop-shadow-[0_0_20px_rgba(243,112,33,0.3)]">
-            <StaggerText text="from device to anywhere" delay={400} />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-stone-200 to-stone-500">
+            <StaggerText text="directly." delay={300} />
           </span>
         </h1>
-        <p className="text-xl text-stone-500 dark:text-stone-300 font-medium leading-relaxed max-w-xl">
-          Send files of any size directly from your device without ever storing anything online.
+        <p className="text-xl text-stone-400 font-medium leading-relaxed max-w-lg tracking-tight">
+          Send files of any size directly from your device without ever storing anything online. Fast, secure, and peer-to-peer.
         </p>
         
-        <StaggerCards className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 w-full mt-4 font-medium" delay={800}>
-          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
-             <span className="text-[#f37021] text-lg">♾️</span>
-             <span>No file size limit</span>
+        <StaggerCards className="flex flex-wrap gap-3 w-full mt-2 font-medium" delay={600}>
+          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
+             <span className="text-[#f37021]">♾️</span>
+             <span className="text-sm">No size limit</span>
           </div>
-          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
-             <span className="text-[#f37021] text-lg">⚡</span>
-             <span>Blazingly fast</span>
+          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
+             <span className="text-[#f37021]">⚡</span>
+             <span className="text-sm">Blazingly fast</span>
           </div>
-          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
-             <span className="text-[#f37021] text-lg">🔄</span>
-             <span>Peer-to-peer</span>
+          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
+             <span className="text-[#f37021]">🔄</span>
+             <span className="text-sm">Peer-to-peer</span>
           </div>
-          <div className="flex items-center space-x-3 text-stone-700 dark:text-stone-200">
-             <span className="text-[#f37021] text-lg">🔒</span>
-             <span>End-to-end encrypted</span>
+          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-stone-200 shadow-xl shadow-black/20">
+             <span className="text-[#f37021]">🔒</span>
+             <span className="text-sm">E2E encrypted</span>
           </div>
         </StaggerCards>
+      </div>
+
+      {/* Left side: DropZone (Now on the right) */}
+      <div className="w-full md:w-1/2 flex justify-center md:justify-end shrink-0 order-1 md:order-2 relative">
+         <div className="absolute inset-0 bg-[#f37021]/20 blur-[100px] rounded-full translate-x-10 translate-y-10 pointer-events-none" />
+         <DropZone onDrop={onDrop} />
       </div>
     </div>
   )
@@ -275,52 +276,72 @@ export default function UploadPage(): JSX.Element {
       </AnimatePresence>
       
       {!uploadedFiles.length && (
-        <section className="mt-24 w-full flex flex-col items-center text-center pb-20 border-t border-stone-800 pt-16">
-          <h2 className="text-3xl font-bold text-white mb-10">What is CoffeeShare?</h2>
+        <section className="mt-32 w-full flex flex-col items-center text-center pb-20 border-t border-white/5 pt-20">
+          <h2 className="text-4xl font-black tracking-tight text-white mb-16">How CoffeeShare Works</h2>
           
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full max-w-4xl opacity-80 mb-16">
-            <div className="flex flex-col items-center">
-              <div className="text-stone-400 text-sm mb-2 font-medium">Upload to server</div>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-12 border-2 border-stone-600 rounded-lg flex items-center justify-center">
-                   <div className="w-8 h-8 rounded-full border-2 border-[#f37021] text-[#f37021] flex items-center justify-center text-xl">↑</div>
+          <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 w-full max-w-5xl mb-24">
+            {/* The Old Way */}
+            <div className="flex-1 bg-stone-900/50 backdrop-blur-sm border border-white/5 rounded-3xl p-8 flex flex-col items-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-stone-800 to-stone-600" />
+              <div className="text-stone-400 font-bold uppercase tracking-widest text-xs mb-8">The Old Way</div>
+              
+              <div className="flex flex-col items-center w-full gap-4">
+                <div className="flex items-center justify-between w-full px-4">
+                  <div className="w-12 h-12 bg-stone-800 rounded-xl flex items-center justify-center border border-white/5">💻</div>
+                  <div className="flex-1 h-px bg-stone-800 relative mx-2">
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-stone-600 rotate-45"></div>
+                  </div>
+                  <div className="w-16 h-16 bg-stone-800 rounded-full flex items-center justify-center border border-white/5 shadow-inner text-2xl">☁️</div>
+                  <div className="flex-1 h-px bg-stone-800 relative mx-2">
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-stone-600 rotate-45"></div>
+                  </div>
+                  <div className="w-12 h-12 bg-stone-800 rounded-xl flex items-center justify-center border border-white/5">📱</div>
                 </div>
-                <div className="w-24 h-[2px] bg-stone-600 relative">
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-stone-600 rotate-45"></div>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 bg-stone-800 rounded-full flex items-center justify-center">☁️</div>
-                  <div className="text-stone-500 text-xs mt-2 text-center">Third Party<br/>Max file size (2GB)<br/>Your files on their servers</div>
-                </div>
+                <ul className="text-stone-500 text-sm text-left w-full max-w-[200px] mt-4 space-y-2">
+                  <li className="flex items-center gap-2"><span className="text-red-500/70">✗</span> Stored on their servers</li>
+                  <li className="flex items-center gap-2"><span className="text-red-500/70">✗</span> Strict file size limits</li>
+                  <li className="flex items-center gap-2"><span className="text-red-500/70">✗</span> Slower transfers</li>
+                </ul>
               </div>
             </div>
             
-            <div className="hidden md:block w-[2px] h-32 bg-stone-800"></div>
+            {/* The VS Badge */}
+            <div className="hidden md:flex items-center justify-center w-12 z-10 -mx-9">
+              <div className="w-10 h-10 bg-black rounded-full border border-white/10 flex items-center justify-center text-stone-500 text-xs font-bold italic shadow-2xl shadow-black">
+                VS
+              </div>
+            </div>
 
-            <div className="flex flex-col items-center">
-              <div className="text-[#f37021] text-lg font-bold mb-2">CoffeeShare</div>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-12 border-2 border-[#f37021] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(243,112,33,0.3)]">
-                   <div className="w-8 h-8 rounded-full border-2 border-[#f37021] text-[#f37021] flex items-center justify-center text-xl">↑</div>
+            {/* CoffeeShare Way */}
+            <div className="flex-1 bg-gradient-to-b from-[#f37021]/10 to-transparent backdrop-blur-md border border-[#f37021]/30 rounded-3xl p-8 flex flex-col items-center relative overflow-hidden shadow-[0_0_50px_rgba(243,112,33,0.05)]">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#f37021] to-[#ff985c]" />
+              <div className="text-[#f37021] font-bold uppercase tracking-widest text-xs mb-8">With CoffeeShare</div>
+              
+              <div className="flex flex-col items-center w-full gap-4">
+                <div className="flex items-center justify-between w-full px-4">
+                  <div className="w-12 h-12 bg-[#f37021]/20 rounded-xl flex items-center justify-center border border-[#f37021]/40 text-xl shadow-[0_0_15px_rgba(243,112,33,0.3)]">💻</div>
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-[#f37021]/50 to-[#f37021] relative mx-3">
+                    <div className="absolute left-1/2 -top-6 -translate-x-1/2 text-[10px] text-[#f37021] font-mono font-bold whitespace-nowrap">Direct P2P</div>
+                    <div className="absolute left-1/2 top-4 -translate-x-1/2 text-[10px] text-[#f37021]/70 font-mono whitespace-nowrap opacity-75 animate-pulse">Encrypted</div>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-[#f37021] rotate-45 shadow-[0_0_5px_rgba(243,112,33,0.5)]"></div>
+                  </div>
+                  <div className="w-12 h-12 bg-[#f37021]/20 rounded-xl flex items-center justify-center border border-[#f37021]/40 text-xl shadow-[0_0_15px_rgba(243,112,33,0.3)]">📱</div>
                 </div>
-                <div className="w-32 h-[2px] bg-[#f37021] relative flex flex-col items-center justify-center">
-                   <div className="absolute top-1 text-[10px] text-stone-400 w-max">Speed & Data size</div>
-                   <div className="absolute -bottom-4 text-[10px] text-stone-400 w-max">Direct & safe connection</div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-[#f37021] rotate-45"></div>
-                </div>
-                <div className="w-16 h-12 border-2 border-[#f37021] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(243,112,33,0.3)]">
-                   <div className="w-8 h-8 rounded-full border-2 border-[#f37021] text-[#f37021] flex items-center justify-center text-xl">↓</div>
-                </div>
+                <ul className="text-stone-300 text-sm text-left w-full max-w-[200px] mt-4 space-y-2">
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> No server storage</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Infinite file size</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Lightning fast</li>
+                </ul>
               </div>
             </div>
           </div>
 
-          <div className="max-w-2xl text-stone-300 space-y-6 italic leading-relaxed">
+          <div className="max-w-3xl text-stone-400 space-y-6 text-lg leading-relaxed font-medium">
             <p>
-              We are a free and independent peer-to-peer (P2P) file sharing service that prioritizes your privacy and keeps your data safe. We store nothing online: simply close your browser to stop sending.
+              We are a <strong className="text-stone-200 font-bold">free and independent</strong> peer-to-peer (P2P) file sharing service that prioritizes your privacy. We store absolutely nothing online. 
             </p>
             <p>
-              Our mission is to make sure people keep their data safely into their own hands, as it should be.
+              Simply close your browser to stop sending. Our mission is to put data safely back into your hands, exactly where it belongs.
             </p>
           </div>
         </section>

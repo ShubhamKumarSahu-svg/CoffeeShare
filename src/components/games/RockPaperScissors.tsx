@@ -6,9 +6,9 @@ import { Hand, Scissors, Square, RotateCcw } from 'lucide-react'
 type Choice = 'rock' | 'paper' | 'scissors'
 
 const CHOICES = [
-  { id: 'rock', icon: <Hand className="w-8 h-8" />, color: 'from-stone-500 to-stone-700' },
-  { id: 'paper', icon: <Square className="w-8 h-8" />, color: 'from-blue-500 to-blue-700' },
-  { id: 'scissors', icon: <Scissors className="w-8 h-8" />, color: 'from-[#f37021] to-[#e0661e]' },
+  { id: 'rock', icon: <Hand className="w-8 h-8" />, color: 'bg-stone-600' },
+  { id: 'paper', icon: <Square className="w-8 h-8" />, color: 'bg-blue-600' },
+  { id: 'scissors', icon: <Scissors className="w-8 h-8" />, color: 'bg-[#f37021]' },
 ]
 
 export default function RockPaperScissors({
@@ -79,7 +79,7 @@ export default function RockPaperScissors({
               whileHover={{ scale: 1.1, y: -5 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => selectChoice(c.id as Choice)}
-              className={`w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-br ${c.color} shadow-lg text-white border-2 border-white/10`}
+              className={`w-20 h-20 rounded-2xl flex items-center justify-center ${c.color} shadow-lg text-white border-2 border-white/10`}
             >
               {c.icon}
             </motion.button>
@@ -101,14 +101,14 @@ export default function RockPaperScissors({
             </h3>
             <div className="flex items-center justify-center gap-8 w-full">
               <div className="flex flex-col items-center gap-2">
-                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center bg-gradient-to-br ${CHOICES.find(c => c.id === myChoice)?.color} shadow-lg text-white`}>
+                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center ${CHOICES.find(c => c.id === myChoice)?.color} shadow-lg text-white`}>
                   {CHOICES.find(c => c.id === myChoice)?.icon}
                 </div>
                 <span className="text-xs font-bold text-stone-400 uppercase">You</span>
               </div>
               <span className="text-2xl font-bold text-stone-600">VS</span>
               <div className="flex flex-col items-center gap-2">
-                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center bg-gradient-to-br ${CHOICES.find(c => c.id === peerChoice)?.color} shadow-lg text-white`}>
+                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center ${CHOICES.find(c => c.id === peerChoice)?.color} shadow-lg text-white`}>
                   {CHOICES.find(c => c.id === peerChoice)?.icon}
                 </div>
                 <span className="text-xs font-bold text-stone-400 uppercase">Opponent</span>

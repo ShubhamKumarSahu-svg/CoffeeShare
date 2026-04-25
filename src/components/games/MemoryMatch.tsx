@@ -68,7 +68,9 @@ export default function MemoryMatch({
       setBoard(gameState.board)
       setFlipped([])
       setMatched([])
+      setScores({ uploader: 0, downloader: 0 })
       setCurrentTurn('uploader')
+      setIsLocked(false)
     }
   }, [gameState])
 

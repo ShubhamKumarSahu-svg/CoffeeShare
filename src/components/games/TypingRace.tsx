@@ -158,7 +158,7 @@ export default function TypingRace({
             value={input}
             onChange={handleInput}
             disabled={status !== 'playing'}
-            className="w-full bg-stone-900 border-2 border-stone-700 focus:border-[#f37021] rounded-xl px-4 py-3 text-lg text-white outline-none opacity-0 absolute inset-0 z-[-1]"
+            className="w-full bg-stone-900 border-2 border-stone-700 focus:border-[#f37021] rounded-xl px-4 py-3 text-lg text-white outline-none opacity-0 absolute inset-0 z-10 cursor-text"
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"

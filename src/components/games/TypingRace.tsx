@@ -8,6 +8,12 @@ const TEXTS = [
   "CoffeeShare makes transferring large files between devices fast and completely private.",
   "A true master of the keyboard can type faster than they can speak.",
   "Peer-to-peer networks distribute workloads across multiple nodes to eliminate central servers.",
+  "End-to-end encryption ensures that only the communicating users can read the messages.",
+  "The internet is a global network of interconnected computer networks using standard protocols.",
+  "Latency is the time delay between a request and the corresponding response in a network.",
+  "Data flows through the network in small units called packets which are reassembled at the destination.",
+  "Browser APIs provide powerful tools for building real-time collaborative applications.",
+  "Modern web applications can rival native desktop software in both speed and functionality.",
 ]
 
 export default function TypingRace({
@@ -29,16 +35,16 @@ export default function TypingRace({
   const inputRef = useRef<HTMLInputElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const statusRef = useRef(status)
+  const lastTextRef = useRef('')
 
   useEffect(() => { statusRef.current = status }, [status])
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [])
 
   const beginCountdown = useCallback((text: string) => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
     setTargetText(text)
     setInput('')
     setMyProgress(0)
@@ -54,10 +60,8 @@ export default function TypingRace({
       if (count > 0) {
         setCountdown(count)
       } else {
-        if (intervalRef.current) clearInterval(intervalRef.current)
-        intervalRef.current = null
+        if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
         setCountdown(0)
-        // Brief flash of "GO!" then start playing
         setTimeout(() => {
           setStatus('playing')
           setTimeout(() => inputRef.current?.focus(), 50)
@@ -66,11 +70,19 @@ export default function TypingRace({
     }, 1000)
   }, [])
 
-  // Receive game state from peer
+  // Pick a random text that's different from the last one
+  const pickRandomText = useCallback(() => {
+    const available = TEXTS.filter(t => t !== lastTextRef.current)
+    const text = available[Math.floor(Math.random() * available.length)]
+    lastTextRef.current = text
+    return text
+  }, [])
+
   useEffect(() => {
     if (!gameState || gameState.game !== 'typing') return
 
     if (gameState.type === 'init') {
+      lastTextRef.current = gameState.text
       beginCountdown(gameState.text)
     } else if (gameState.type === 'progress') {
       setPeerProgress(gameState.progress)
@@ -84,10 +96,10 @@ export default function TypingRace({
   }, [gameState, beginCountdown])
 
   const startGame = useCallback(() => {
-    const text = TEXTS[Math.floor(Math.random() * TEXTS.length)]
+    const text = pickRandomText()
     sendGameState({ game: 'typing', type: 'init', text })
     beginCountdown(text)
-  }, [sendGameState, beginCountdown])
+  }, [sendGameState, beginCountdown, pickRandomText])
 
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (statusRef.current !== 'playing') return
@@ -106,32 +118,24 @@ export default function TypingRace({
     }
   }, [targetText, sendGameState])
 
-  // Click text area to focus input
   const focusInput = useCallback(() => {
     if (status === 'playing') inputRef.current?.focus()
   }, [status])
 
   return (
     <div className="flex flex-col items-center w-full gap-6">
-      {/* Progress bars */}
       <div className="flex flex-col w-full gap-3 bg-stone-900/60 p-4 rounded-2xl border border-stone-800">
         <div className="flex items-center gap-3">
           <span className="text-xs font-bold text-stone-500 uppercase w-12">You</span>
           <div className="flex-1 h-3 bg-stone-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#f37021] transition-all duration-200 ease-out"
-              style={{ width: `${myProgress}%` }}
-            />
+            <div className="h-full bg-[#f37021] transition-all duration-200 ease-out" style={{ width: `${myProgress}%` }} />
           </div>
           <span className="text-xs font-mono text-stone-400 w-8">{myProgress}%</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs font-bold text-stone-500 uppercase w-12">Peer</span>
           <div className="flex-1 h-3 bg-stone-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#3b82f6] transition-all duration-200 ease-out"
-              style={{ width: `${peerProgress}%` }}
-            />
+            <div className="h-full bg-[#3b82f6] transition-all duration-200 ease-out" style={{ width: `${peerProgress}%` }} />
           </div>
           <span className="text-xs font-mono text-stone-400 w-8">{peerProgress}%</span>
         </div>
@@ -145,7 +149,6 @@ export default function TypingRace({
 
       {status !== 'waiting' && (
         <div className="w-full relative" onClick={focusInput}>
-          {/* Text display */}
           <div className="text-xl sm:text-2xl font-mono leading-relaxed tracking-wide text-stone-500 mb-6 bg-stone-950 p-6 rounded-2xl border-2 border-stone-800/50 relative overflow-hidden select-none">
             {targetText.split('').map((char, i) => {
               let color = 'text-stone-600'
@@ -173,7 +176,6 @@ export default function TypingRace({
             </AnimatePresence>
           </div>
 
-          {/* Hidden input overlay */}
           <input
             ref={inputRef}
             type="text"

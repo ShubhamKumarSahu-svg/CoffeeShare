@@ -39,8 +39,20 @@ export default function GameHub({
   // Handle game invite toasts
   useEffect(() => {
     if (!gameState) return
+
     if (gameState.type === 'game-invite' && gameState.from !== currentUserRole) {
       const gameName = GAMES.find(g => g.id === gameState.gameId)?.name || gameState.gameId
+
+      // If already in a game, auto-decline
+      if (activeGame && isOpen) {
+        sendGameState({ type: 'game-busy', gameId: gameState.gameId, from: currentUserRole })
+        toast(`Declined invite to ${gameName} — already in a game`, {
+          icon: '🎮',
+          style: { background: '#1c1917', color: '#f5f5f4', border: '1px solid rgba(255,255,255,0.05)' },
+        })
+        return
+      }
+
       toast((t) => (
         <div className="flex items-center gap-3">
           <Gamepad2 className="w-5 h-5 text-[#f37021] shrink-0" />
@@ -59,12 +71,16 @@ export default function GameHub({
           >
             Join
           </button>
-          <button onClick={() => toast.dismiss(t.id)} className="text-stone-500 hover:text-stone-300">
+          <button onClick={() => {
+            sendGameState({ type: 'game-busy', gameId: gameState.gameId, from: currentUserRole })
+            toast.dismiss(t.id)
+          }} className="text-stone-500 hover:text-stone-300">
             <X className="w-4 h-4" />
           </button>
         </div>
       ), { duration: 15000, style: { background: '#1c1917', border: '1px solid rgba(243,112,33,0.3)', color: '#f5f5f4' } })
     }
+
     if (gameState.type === 'game-accept' && gameState.from !== currentUserRole) {
       setActiveGame(gameState.gameId)
       setIsOpen(true)
@@ -72,7 +88,15 @@ export default function GameHub({
         style: { background: '#1c1917', color: '#f5f5f4', border: '1px solid rgba(255,255,255,0.05)' },
       })
     }
-  }, [gameState, currentUserRole])
+
+    if (gameState.type === 'game-busy' && gameState.from !== currentUserRole) {
+      const gameName = GAMES.find(g => g.id === gameState.gameId)?.name || gameState.gameId
+      toast.error(`Opponent is busy — can't join ${gameName} right now`, {
+        icon: '🚫',
+        style: { background: '#1c1917', color: '#f5f5f4', border: '1px solid rgba(255,255,255,0.05)' },
+      })
+    }
+  }, [gameState, currentUserRole, activeGame, isOpen])
 
   const selectGame = useCallback((id: GameId) => {
     setActiveGame(id)

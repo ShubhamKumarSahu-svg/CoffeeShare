@@ -59,7 +59,10 @@ export default function RockPaperScissors({
       const peer = gameState.choice as Choice
       setPeerChoice(peer)
       setPhase('reveal')
+      // If we chose but haven't sent our reveal yet (choice-made was batched away),
+      // send it now so the other side also sees the result
       if (myChoiceRef.current) {
+        sendReveal(myChoiceRef.current)
         const res = getResult(myChoiceRef.current, peer)
         setResult(res)
         if (res === 'win') setScores(s => ({ ...s, me: s.me + 1 }))

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, MicOff, Video, VideoOff, PhoneOff, Phone, Maximize2, Minimize2, PhoneCall } from 'lucide-react'
 import { useWebRTCPeer } from './WebRTCProvider'
+import toast from 'react-hot-toast'
 
 interface VideoChatProps {
   remotePeerId?: string // Provide if downloader calling uploader
@@ -16,7 +17,14 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
   const { peer } = useWebRTCPeer()
   
   const [callState, setCallState] = useState<CallState>('idle')
+  const callStateRef = useRef<CallState>('idle')
   const [callType, setCallType] = useState<CallType>('video')
+  
+  // Sync state to ref for callbacks
+  useEffect(() => {
+    callStateRef.current = callState
+  }, [callState])
+
   const [showDialer, setShowDialer] = useState(false)
   
   const [isMaximized, setIsMaximized] = useState(false)
@@ -68,7 +76,12 @@ export default function VideoChat({ remotePeerId, isUploader }: VideoChatProps) 
           setRemoteStream(userVideoStream)
           setCallState('connected')
         })
-        call.on('close', () => endCall())
+        call.on('close', () => {
+          if (callStateRef.current === 'calling') {
+            toast.error('Call declined by peer')
+          }
+          endCall()
+        })
       })
       .catch(err => {
         console.error("Failed to get local stream", err)

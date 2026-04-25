@@ -226,7 +226,10 @@ export default function Uploader({
         sendGameState={sendGameState} 
         currentUserRole="uploader" 
       />
-      <VideoChat isUploader={true} />
+      <VideoChat 
+        isUploader={true} 
+        remotePeerId={connections.length > 0 ? connections[0].dataConnection.peer : undefined} 
+      />
     </motion.div>
   )
 }

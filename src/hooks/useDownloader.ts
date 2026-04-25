@@ -274,8 +274,6 @@ export function useDownloader(uploaderPeerID: string): {
     (state: any) => {
       if (!dataConnection) return
       dataConnection.send({ type: MessageType.GameState, state })
-      // Also update local game state so the sender's own GameHub reacts
-      setGameState(state)
     },
     [dataConnection],
   )

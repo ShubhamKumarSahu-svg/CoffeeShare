@@ -538,8 +538,6 @@ export function useUploaderConnections(
         c.dataConnection.send({ type: MessageType.GameState, state })
       }
     })
-    // Also update local game state so the sender's own GameHub reacts
-    setGameState(state)
   }, [])
 
   return {

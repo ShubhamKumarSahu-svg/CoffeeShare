@@ -15,35 +15,34 @@ function createEmptyBoard(): Board {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY))
 }
 
+function findDropRow(board: Board, col: number): number {
+  for (let row = ROWS - 1; row >= 0; row--) {
+    if (board[row][col] === EMPTY) return row
+  }
+  return -1
+}
+
 function checkWinner(board: Board): number | null {
-  // Horizontal
-  for (let r = 0; r < ROWS; r++) {
+  for (let r = 0; r < ROWS; r++)
     for (let c = 0; c <= COLS - 4; c++) {
       const v = board[r][c]
       if (v !== EMPTY && v === board[r][c+1] && v === board[r][c+2] && v === board[r][c+3]) return v
     }
-  }
-  // Vertical
-  for (let r = 0; r <= ROWS - 4; r++) {
+  for (let r = 0; r <= ROWS - 4; r++)
     for (let c = 0; c < COLS; c++) {
       const v = board[r][c]
       if (v !== EMPTY && v === board[r+1][c] && v === board[r+2][c] && v === board[r+3][c]) return v
     }
-  }
-  // Diagonal ↘
-  for (let r = 0; r <= ROWS - 4; r++) {
+  for (let r = 0; r <= ROWS - 4; r++)
     for (let c = 0; c <= COLS - 4; c++) {
       const v = board[r][c]
       if (v !== EMPTY && v === board[r+1][c+1] && v === board[r+2][c+2] && v === board[r+3][c+3]) return v
     }
-  }
-  // Diagonal ↙
-  for (let r = 0; r <= ROWS - 4; r++) {
+  for (let r = 0; r <= ROWS - 4; r++)
     for (let c = 3; c < COLS; c++) {
       const v = board[r][c]
       if (v !== EMPTY && v === board[r+1][c-1] && v === board[r+2][c-2] && v === board[r+3][c-3]) return v
     }
-  }
   return null
 }
 
@@ -61,7 +60,7 @@ export default function ConnectFour({
   currentUserRole: 'uploader' | 'downloader'
 }) {
   const [board, setBoard] = useState<Board>(createEmptyBoard())
-  const [currentTurn, setCurrentTurn] = useState<number>(P1) // P1 goes first
+  const [currentTurn, setCurrentTurn] = useState<number>(P1)
   const [winner, setWinner] = useState<number | null>(null)
   const [isDraw, setIsDraw] = useState(false)
   const [lastDrop, setLastDrop] = useState<{ row: number; col: number } | null>(null)
@@ -71,37 +70,36 @@ export default function ConnectFour({
   const myPlayer = currentUserRole === 'uploader' ? P1 : P2
   const isMyTurn = currentTurn === myPlayer && !winner && !isDraw
 
+  // Apply a move to the board (used for both local and remote moves)
+  const applyMove = useCallback((col: number, player: number, isRemote: boolean) => {
+    const newBoard = board.map(r => [...r])
+    const row = findDropRow(newBoard, col)
+    if (row === -1) return // column full
+
+    newBoard[row][col] = player
+    setBoard(newBoard)
+    setLastDrop(isRemote ? null : { row, col }) // only animate local drops
+    setCurrentTurn(player === P1 ? P2 : P1)
+
+    const w = checkWinner(newBoard)
+    if (w) {
+      setWinner(w)
+      setScores(prev => {
+        const s: [number, number] = [...prev]
+        s[w - 1]++
+        return s
+      })
+    } else if (isBoardFull(newBoard)) {
+      setIsDraw(true)
+    }
+  }, [board])
+
   // Handle incoming game state from opponent
   useEffect(() => {
-    if (!gameState) return
-    if (gameState.game !== 'connect4') return
+    if (!gameState || gameState.game !== 'connect4') return
 
     if (gameState.type === 'move') {
-      const { col, player } = gameState
-      setBoard(prev => {
-        const newBoard = prev.map(r => [...r])
-        for (let row = ROWS - 1; row >= 0; row--) {
-          if (newBoard[row][col] === EMPTY) {
-            newBoard[row][col] = player
-            setLastDrop({ row, col })
-            
-            const w = checkWinner(newBoard)
-            if (w) {
-              setWinner(w)
-              setScores(prev => {
-                const s: [number, number] = [...prev]
-                s[w - 1]++
-                return s
-              })
-            } else if (isBoardFull(newBoard)) {
-              setIsDraw(true)
-            }
-            break
-          }
-        }
-        setCurrentTurn(player === P1 ? P2 : P1)
-        return newBoard
-      })
+      applyMove(gameState.col, gameState.player, true)
     } else if (gameState.type === 'reset') {
       setBoard(createEmptyBoard())
       setCurrentTurn(P1)
@@ -109,37 +107,13 @@ export default function ConnectFour({
       setIsDraw(false)
       setLastDrop(null)
     }
-  }, [gameState])
+  }, [gameState]) // intentionally excluding applyMove to prevent re-processing
 
   const dropPiece = useCallback((col: number) => {
-    if (!isMyTurn) return
-    if (board[0][col] !== EMPTY) return // Column full
-
-    const newBoard = board.map(r => [...r])
-    for (let row = ROWS - 1; row >= 0; row--) {
-      if (newBoard[row][col] === EMPTY) {
-        newBoard[row][col] = myPlayer
-        setLastDrop({ row, col })
-
-        const w = checkWinner(newBoard)
-        if (w) {
-          setWinner(w)
-          setScores(prev => {
-            const s: [number, number] = [...prev]
-            s[w - 1]++
-            return s
-          })
-        } else if (isBoardFull(newBoard)) {
-          setIsDraw(true)
-        }
-        break
-      }
-    }
-
-    setBoard(newBoard)
-    setCurrentTurn(myPlayer === P1 ? P2 : P1)
+    if (!isMyTurn || board[0][col] !== EMPTY) return
+    applyMove(col, myPlayer, false)
     sendGameState({ game: 'connect4', type: 'move', col, player: myPlayer })
-  }, [board, isMyTurn, myPlayer, sendGameState])
+  }, [board, isMyTurn, myPlayer, applyMove, sendGameState])
 
   const resetGame = useCallback(() => {
     setBoard(createEmptyBoard())
@@ -151,19 +125,14 @@ export default function ConnectFour({
   }, [sendGameState])
 
   const getStatusText = () => {
-    if (winner) {
-      const name = winner === myPlayer ? 'You win!' : 'Opponent wins!'
-      return name
-    }
+    if (winner) return winner === myPlayer ? 'You win!' : 'Opponent wins!'
     if (isDraw) return "It's a draw!"
     return isMyTurn ? 'Your turn — drop a piece!' : "Opponent's turn..."
   }
 
   const getPreviewRow = (col: number): number | null => {
-    for (let row = ROWS - 1; row >= 0; row--) {
-      if (board[row][col] === EMPTY) return row
-    }
-    return null
+    const row = findDropRow(board, col)
+    return row >= 0 ? row : null
   }
 
   return (
@@ -176,8 +145,8 @@ export default function ConnectFour({
           <span className={`text-xl font-mono font-black ${currentUserRole === 'uploader' ? 'text-[#f37021]' : 'text-stone-300'}`}>{scores[0]}</span>
         </div>
         <div className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-          isMyTurn 
-            ? 'bg-[#f37021]/15 text-[#f37021] border border-[#f37021]/30' 
+          isMyTurn
+            ? 'bg-[#f37021]/15 text-[#f37021] border border-[#f37021]/30'
             : 'bg-stone-800/60 text-stone-500 border border-stone-700/50'
         }`}>
           {getStatusText()}
@@ -190,9 +159,8 @@ export default function ConnectFour({
       </div>
 
       {/* Board */}
-      <div 
-        className="relative rounded-2xl p-2 shadow-[0_0_30px_rgba(0,0,0,0.4)]"
-        style={{ background: 'linear-gradient(135deg, #1e3a5f, #1a365d)' }}
+      <div
+        className="relative rounded-2xl p-2 shadow-[0_0_30px_rgba(0,0,0,0.4)] bg-[#1a365d]"
       >
         {/* Column hover indicators */}
         <div className="grid grid-cols-7 gap-1 mb-1">
@@ -202,12 +170,7 @@ export default function ConnectFour({
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 0.7, y: 0 }}
-                  className="w-8 h-8 rounded-full -mt-1"
-                  style={{
-                    background: myPlayer === P1
-                      ? 'radial-gradient(circle at 35% 35%, #ff8c42, #f37021)'
-                      : 'radial-gradient(circle at 35% 35%, #60a5fa, #3b82f6)',
-                  }}
+                  className={`w-8 h-8 rounded-full -mt-1 ${myPlayer === P1 ? 'bg-[#f37021]' : 'bg-[#3b82f6]'}`}
                 />
               )}
             </div>
@@ -228,11 +191,7 @@ export default function ConnectFour({
                   onMouseEnter={() => setHoverCol(c)}
                   onMouseLeave={() => setHoverCol(null)}
                   disabled={!isMyTurn || board[0][c] !== EMPTY}
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full relative flex items-center justify-center transition-transform"
-                  style={{
-                    background: 'radial-gradient(circle at 45% 45%, #0f2847, #0a1929)',
-                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)',
-                  }}
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full relative flex items-center justify-center bg-[#0f2847] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                   whileHover={isMyTurn && cell === EMPTY ? { scale: 1.05 } : {}}
                   whileTap={isMyTurn && cell === EMPTY ? { scale: 0.95 } : {}}
                 >
@@ -242,15 +201,11 @@ export default function ConnectFour({
                         initial={isLastDrop ? { y: -(r + 1) * 48, opacity: 0 } : { opacity: 1 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={isLastDrop ? { type: 'spring', bounce: 0.4, duration: 0.6 } : { duration: 0 }}
-                        className="absolute inset-1 rounded-full"
-                        style={{
-                          background: cell === P1
-                            ? 'radial-gradient(circle at 35% 35%, #ff8c42, #f37021, #c2540a)'
-                            : 'radial-gradient(circle at 35% 35%, #60a5fa, #3b82f6, #1d4ed8)',
-                          boxShadow: cell === P1
-                            ? '0 2px 8px rgba(243,112,33,0.4), inset 0 1px 2px rgba(255,255,255,0.3)'
-                            : '0 2px 8px rgba(59,130,246,0.4), inset 0 1px 2px rgba(255,255,255,0.3)',
-                        }}
+                        className={`absolute inset-1 rounded-full ${
+                          cell === P1
+                            ? 'bg-[#f37021] shadow-[0_2px_8px_rgba(243,112,33,0.4)]'
+                            : 'bg-[#3b82f6] shadow-[0_2px_8px_rgba(59,130,246,0.4)]'
+                        }`}
                       />
                     )}
                     {isPreview && cell === EMPTY && (
@@ -258,12 +213,7 @@ export default function ConnectFour({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 0.2 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-1 rounded-full"
-                        style={{
-                          background: myPlayer === P1
-                            ? 'radial-gradient(circle at 35% 35%, #ff8c42, #f37021)'
-                            : 'radial-gradient(circle at 35% 35%, #60a5fa, #3b82f6)',
-                        }}
+                        className={`absolute inset-1 rounded-full ${myPlayer === P1 ? 'bg-[#f37021]' : 'bg-[#3b82f6]'}`}
                       />
                     )}
                   </AnimatePresence>
@@ -274,7 +224,7 @@ export default function ConnectFour({
         </div>
       </div>
 
-      {/* Winner / Draw Overlay Actions */}
+      {/* Winner / Draw Actions */}
       <AnimatePresence>
         {(winner || isDraw) && (
           <motion.div

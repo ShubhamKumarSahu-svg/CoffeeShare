@@ -90,10 +90,10 @@ export default function ReactionRace({ gameState, sendGameState, currentUserRole
     }
   }, [phase, currentUserRole, sendGameState])
 
-  const bgColor = phase === 'waiting' ? 'bg-gradient-to-br from-red-500/30 to-red-600/10 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]'
-    : phase === 'go' ? 'bg-gradient-to-br from-green-500/30 to-green-600/10 border-green-500/50 shadow-[0_0_40px_rgba(34,197,94,0.4)]'
-    : phase === 'too-early' ? 'bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)]'
-    : 'bg-gradient-to-br from-stone-800/50 to-stone-900/50 border-stone-700/80 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]'
+  const bgColor = phase === 'waiting' ? 'bg-red-500/20 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]'
+    : phase === 'go' ? 'bg-green-500/20 border-green-500/50 shadow-[0_0_40px_rgba(34,197,94,0.4)]'
+    : phase === 'too-early' ? 'bg-yellow-500/20 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)]'
+    : 'bg-stone-800/50 border-stone-700/80 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]'
 
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-sm">

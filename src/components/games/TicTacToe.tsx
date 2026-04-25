@@ -104,8 +104,8 @@ export default function TicTacToe({ gameState, sendGameState, currentUserRole }:
             whileTap={!cell && !winner && turn === mySymbol ? { scale: 0.95 } : {}}
             onClick={() => handleClick(i)}
             className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl text-4xl sm:text-5xl font-black flex items-center justify-center transition-all duration-300 border-2 ${
-              cell === 'X' ? 'text-[#f37021] border-[#f37021]/50 bg-gradient-to-br from-[#f37021]/20 to-[#f37021]/5 shadow-[0_0_15px_rgba(243,112,33,0.3)]'
-              : cell === 'O' ? 'text-blue-400 border-blue-400/50 bg-gradient-to-br from-blue-400/20 to-blue-400/5 shadow-[0_0_15px_rgba(96,165,250,0.3)]'
+              cell === 'X' ? 'text-[#f37021] border-[#f37021]/50 bg-[#f37021]/15 shadow-[0_0_15px_rgba(243,112,33,0.3)]'
+              : cell === 'O' ? 'text-blue-400 border-blue-400/50 bg-blue-400/15 shadow-[0_0_15px_rgba(96,165,250,0.3)]'
               : turn === mySymbol && !winner ? 'border-stone-700/50 bg-stone-800/30 hover:bg-stone-700/40 hover:border-stone-600/80 cursor-pointer shadow-inner'
               : 'border-stone-800/30 bg-stone-900/30 cursor-not-allowed opacity-70'
             }`}
@@ -124,7 +124,7 @@ export default function TicTacToe({ gameState, sendGameState, currentUserRole }:
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={handleReset}
-          className="px-8 py-3 mt-2 bg-gradient-to-r from-[#f37021] to-[#e0661e] hover:from-[#ff8033] hover:to-[#f37021] text-white font-bold rounded-xl shadow-lg shadow-[#f37021]/20 transition-all"
+          className="px-8 py-3 mt-2 bg-[#f37021] hover:bg-[#e0661e] text-white font-bold rounded-xl shadow-lg shadow-[#f37021]/20 transition-all"
         >
           Play Again
         </motion.button>

@@ -72,7 +72,7 @@ export default function GameHub({
         style: { background: '#1c1917', color: '#f5f5f4', border: '1px solid rgba(255,255,255,0.05)' },
       })
     }
-  }, [gameState, currentUserRole, sendGameState])
+  }, [gameState, currentUserRole])
 
   const selectGame = useCallback((id: GameId) => {
     setActiveGame(id)
@@ -91,7 +91,7 @@ export default function GameHub({
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-6 p-3.5 bg-gradient-to-br from-[#f37021] to-[#e0661e] text-white rounded-2xl shadow-lg shadow-[#f37021]/20 hover:shadow-[#f37021]/40 transition-shadow z-40 group"
+        className="fixed bottom-24 right-6 p-3.5 bg-[#f37021] text-white rounded-2xl shadow-lg shadow-[#f37021]/20 hover:bg-[#e0661e] hover:shadow-[#f37021]/40 transition-all z-40 group"
         title="Play games while you wait"
       >
         <Gamepad2 className="w-6 h-6" />
@@ -162,7 +162,7 @@ export default function GameHub({
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => selectGame(g.id)}
-                        className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-black/20 hover:border-[#f37021]/40 hover:shadow-[0_20px_50px_-30px_rgba(243,112,33,0.9)] transition-all"
+                        className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-white/10 bg-stone-900/60 hover:border-[#f37021]/40 hover:bg-stone-800/80 hover:shadow-[0_20px_50px_-30px_rgba(243,112,33,0.9)] transition-all"
                       >
                         <div className="text-[#f37021]">{g.icon}</div>
                         <span className="text-stone-100 font-semibold text-sm text-center">{g.name}</span>

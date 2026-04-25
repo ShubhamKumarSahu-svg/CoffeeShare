@@ -269,7 +269,7 @@ export function ReadyToDownload({
             </button>
             <button
               onClick={() => onStart(true)}
-              className="flex-1 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#f37021] to-[#e0661e] hover:from-[#ff8033] hover:to-[#f37021] text-white font-bold transition-all shadow-lg shadow-[#f37021]/20 flex items-center justify-center gap-2 text-sm"
+              className="flex-1 px-5 py-3.5 rounded-2xl bg-[#f37021] hover:bg-[#e0661e] text-white font-bold transition-all shadow-lg shadow-[#f37021]/20 flex items-center justify-center gap-2 text-sm"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />

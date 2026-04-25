@@ -108,16 +108,17 @@ export default function Uploader({
     return <ErrorMessage message={error.message} />
   }
 
-  const overallProgress =
+  const overallProgress = Math.min(1,
     connections.length > 0
       ? connections.reduce(
           (acc, conn) =>
             acc +
-            (conn.completedFiles + conn.currentFileProgress) /
-              Math.max(1, conn.totalFiles),
+            Math.min(1, (conn.completedFiles + conn.currentFileProgress) /
+              Math.max(1, conn.totalFiles)),
           0,
         ) / connections.length
       : 0
+  )
 
   const totalSize = files.reduce((acc, f) => acc + f.size, 0)
   const completedPeers = connections.filter(
@@ -134,7 +135,7 @@ export default function Uploader({
         whileHover={{ scale: 1.02 }}
         className="surface col-span-1 md:col-span-2 rounded-3xl p-6 relative overflow-hidden flex flex-col justify-between"
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#f37021] via-[#ff985c] to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-[#f37021]" />
         <div className="flex items-center gap-4">
           {files.length === 1 && files[0].type.startsWith('image/') ? (
             <div 
@@ -209,7 +210,7 @@ export default function Uploader({
           <div className="absolute bottom-0 left-0 h-1.5 bg-stone-800 w-full">
             <div
               className="h-full bg-amber-500 transition-all duration-300 ease-out"
-              style={{ width: `${overallProgress * 100}%` }}
+              style={{ width: `${Math.min(100, overallProgress * 100)}%` }}
             ></div>
           </div>
         )}

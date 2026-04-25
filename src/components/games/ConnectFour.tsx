@@ -298,7 +298,7 @@ export default function ConnectFour({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={resetGame}
-              className="px-6 py-2 bg-gradient-to-r from-[#f37021] to-[#e0661e] text-white font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-[#f37021]/20"
+              className="px-6 py-2 bg-[#f37021] hover:bg-[#e0661e] text-white font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-[#f37021]/20"
             >
               <RotateCcw className="w-4 h-4" /> Play Again
             </motion.button>

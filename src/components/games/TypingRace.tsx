@@ -99,7 +99,7 @@ export default function TypingRace({
           <span className="text-xs font-bold text-stone-500 uppercase w-12">You</span>
           <div className="flex-1 h-3 bg-stone-800 rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-gradient-to-r from-[#f37021] to-[#ff985c]"
+              className="h-full bg-[#f37021]"
               animate={{ width: `${myProgress}%` }}
               transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
             />
@@ -110,7 +110,7 @@ export default function TypingRace({
           <span className="text-xs font-bold text-stone-500 uppercase w-12">Peer</span>
           <div className="flex-1 h-3 bg-stone-800 rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa]"
+              className="h-full bg-[#3b82f6]"
               animate={{ width: `${peerProgress}%` }}
               transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
             />

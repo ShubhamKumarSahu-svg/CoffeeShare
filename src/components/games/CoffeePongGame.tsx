@@ -429,7 +429,7 @@ export default function CoffeePongGame({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleReady}
-                  className="mt-1 px-8 py-2.5 bg-gradient-to-r from-[#f37021] to-[#e0661e] hover:from-[#ff8033] hover:to-[#f37021] text-white font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-[#f37021]/20"
+                  className="mt-1 px-8 py-2.5 bg-[#f37021] hover:bg-[#e0661e] text-white font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-[#f37021]/20"
                 >
                   <Play className="w-4 h-4" /> Ready Up
                 </motion.button>
@@ -454,7 +454,7 @@ export default function CoffeePongGame({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleReady}
-                className="mt-2 px-8 py-2.5 bg-gradient-to-r from-[#f37021] to-[#e0661e] text-white font-bold rounded-xl shadow-lg shadow-[#f37021]/20"
+                className="mt-2 px-8 py-2.5 bg-[#f37021] hover:bg-[#e0661e] text-white font-bold rounded-xl shadow-lg shadow-[#f37021]/20"
               >
                 Play Again
               </motion.button>

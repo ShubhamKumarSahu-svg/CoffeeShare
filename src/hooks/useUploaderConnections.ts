@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Peer, { DataConnection } from 'peerjs'
 import {
   UploadedFile,
@@ -68,6 +68,12 @@ export function useUploaderConnections(
   useEffect(() => {
     filesRef.current = files
   }, [files])
+
+  // Keep a ref to connections so sendGameState/sendChatMessage never use stale state
+  const connectionsRef = useRef<Array<UploaderConnection>>([])
+  useEffect(() => {
+    connectionsRef.current = connections
+  }, [connections])
 
   useEffect(() => {
     console.log(
@@ -510,28 +516,31 @@ export function useUploaderConnections(
     }
   }, [peer, password, cryptoKey])
 
-  const sendChatMessage = (text: string) => {
+  const sendChatMessage = useCallback((text: string) => {
     const msg = {
       type: MessageType.Chat,
       text,
       sender: 'uploader' as const,
       timestamp: Date.now(),
     }
-    connections.forEach((c) => {
+    connectionsRef.current.forEach((c) => {
       if (c.dataConnection.open) {
         c.dataConnection.send(msg)
       }
     })
     setChatMessages((prev) => [...prev, msg])
-  }
+  }, [])
 
-  const sendGameState = (state: any) => {
-    console.log('[UploaderConnections] sendGameState called with:', state);
-    connections.forEach((c) => {
-      console.log(`[UploaderConnections] sending to peer (open: ${c.dataConnection.open})`);
-      c.dataConnection.send({ type: MessageType.GameState, state })
+  const sendGameState = useCallback((state: any) => {
+    const conns = connectionsRef.current
+    conns.forEach((c) => {
+      if (c.dataConnection.open) {
+        c.dataConnection.send({ type: MessageType.GameState, state })
+      }
     })
-  }
+    // Also update local game state so the sender's own GameHub reacts
+    setGameState(state)
+  }, [])
 
   return {
     connections,

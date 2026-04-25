@@ -55,7 +55,7 @@ export default function ChatDrawer({
           setIsOpen(true)
           setUnreadCount(0)
         }}
-        className="fixed bottom-6 right-6 p-4 bg-gradient-to-br from-[#f37021] to-[#ff985c] text-white rounded-full shadow-lg hover:brightness-110 transition-colors z-40 group flex items-center gap-2"
+        className="fixed bottom-6 right-6 p-4 bg-[#f37021] hover:bg-[#e0661e] text-white rounded-full shadow-lg transition-colors z-40 group flex items-center gap-2"
       >
         <MessageSquare className="w-6 h-6" />
         {unreadCount > 0 && (

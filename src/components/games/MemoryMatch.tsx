@@ -140,7 +140,7 @@ export default function MemoryMatch({
               style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Back */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#f37021] to-[#e0661e] rounded-xl flex items-center justify-center shadow-md backface-hidden" style={{ backfaceVisibility: 'hidden' }}>
+              <div className="absolute inset-0 bg-[#f37021] rounded-xl flex items-center justify-center shadow-md backface-hidden" style={{ backfaceVisibility: 'hidden' }}>
                 <span className="text-white/30 text-2xl font-bold">?</span>
               </div>
               {/* Front */}

@@ -14,18 +14,51 @@ CoffeeShare operates by establishing a direct connection between the uploader's 
 5. **Direct Transfer**: WebRTC establishes a direct connection. The file is read in chunks using the browser's File API and streamed through a WebRTC `RTCDataChannel` to the downloader, where it is dynamically reconstructed and downloaded using `StreamSaver.js`.
 
 ---
-
 ## 🗄️ Database Management System (DBMS) Integration
 
-While CoffeeShare is fundamentally a serverless P2P app, it relies on database concepts for managing share links (Channels) when configured with a backend.
+CoffeeShare features a robust **Dual-Layer Persistence Architecture** demonstrating production-grade DBMS concepts:
 
-* **Key-Value Store (Redis)**: CoffeeShare implements a `RedisChannelRepo` using `ioredis`. Redis serves as an extremely fast, in-memory data structure store used to map user-friendly short URLs (e.g., `hxkn68wv`) and long URLs (e.g., `spicy-cheese-pizza`) to WebRTC Peer IDs.
-* **Concurrency & Uniqueness**: The backend generates random slugs and verifies their uniqueness in the database before assigning them (`generateShortSlugUntilUnique`).
-* **TTL (Time To Live)**: To ensure data doesn't accumulate forever, Redis keys are set with an automatic expiration time (TTL) of 1 hour (`config.channel.ttl`). This automatically cleans up stale channels, acting as an automated garbage collector for the database.
-* **In-Memory Fallback**: For environments without Redis (like serverless Vercel deployments), the system seamlessly falls back to either a `MemoryChannelRepo` (using standard JavaScript `Map` structures) or encodes the state directly into the URL (Base64 encoding), completely bypassing the need for database persistence.
+### 1. The Persistence Layer (Prisma + SQLite)
+All file transfers and room metadata are durably stored using a relational database:
+* **Relational Schema (3NF)**: Structured data modeling with 1:N foreign-key relationships between `Room`, `RoomParticipant`, and `Transfer` entities.
+* **ACID Transactions**: Prisma ensures atomicity for multi-table inserts (e.g., creating a transfer log while simultaneously dispatching an analytics event).
+* **Analytics Engine**: A dedicated `/api/analytics` endpoint executes complex aggregations including `GROUP BY`, `SUM`, `AVG`, `MIN`, `MAX`, and `COUNT` to generate real-time metrics.
+* **Transfer Dashboard**: A persistent UI (bottom-left FAB) lets users query, filter, sort, and delete their transfer history directly from the SQLite database.
+
+### 2. The Signaling Layer (Redis / In-Memory)
+WebRTC requires a fast matchmaking service to map 6-character shortcodes to massive UUIDs.
+* **Strategy Pattern**: Implements `RedisChannelRepo` for production and `MemoryChannelRepo` for local development.
+* **Ephemeral Data (TTL)**: Because room codes are temporary, this layer relies heavily on automated Garbage Collection. Redis automatically evicts keys using `SETEX` (24-hour Time-To-Live).
 
 ---
 
+## 💻 Local Environment Setup
+
+To run CoffeeShare locally with the full database enabled:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/ShubhamKumarSahu-svg/CoffeeShare.git
+cd CoffeeShare
+
+# 2. Install dependencies (NPM required)
+npm install
+
+# 3. Generate Prisma Client & Run Database Migrations
+npx prisma generate
+npx prisma migrate dev
+
+# 4. Start the development server
+npm run dev
+```
+
+**Environment Variables (Optional):**
+By default, CoffeeShare uses a local SQLite database (`prisma/dev.db`) and an in-memory signaling map. For production:
+* `DATABASE_URL` = `postgresql://...` (Switch Prisma provider to PostgreSQL)
+* `REDIS_URL` = `redis://...` (Enables the Redis signaling engine)
+* `METERED_TURN_API_KEY` = `...` (Enables enterprise NAT traversal)
+
+---
 ## 🌐 Computer Networks Concepts
 
 CoffeeShare is heavily built on advanced Computer Networking principles.

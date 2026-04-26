@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '../../../../../lib/prisma'
+import { prisma } from '../../../../lib/prisma'
 
 // PATCH /api/transfers/[id] — update transfer status
 export async function PATCH(

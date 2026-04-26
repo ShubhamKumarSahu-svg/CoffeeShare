@@ -4,14 +4,15 @@ To understand how CoffeeShare operates, you must understand the exact mechanics 
 
 ## 2.1 The Connection Lifecycle: Signaling (Offer, Answer, ICE)
 
-WebRTC is purely peer-to-peer, but two computers cannot connect without knowing each other's public IP address, ports, and supported media/data codecs. They need a "Signaling Server" just to pass notes to each other to initiate the connection. In CoffeeShare, we use **Supabase (PostgreSQL Realtime)** as the signaling server.
+WebRTC is purely peer-to-peer, but two computers cannot connect without knowing each other's public IP address, ports, and supported media/data codecs. They need a "Signaling Server" just to pass notes to each other to initiate the connection. In CoffeeShare, we use a **Redis / In-Memory Channel Repository** (`src/channel.ts`) as the signaling backend, with Next.js API routes as the signaling server.
 
 Here is the exact step-by-step lifecycle of a CoffeeShare connection:
 
-1. **Uploader Initialization (The Host)**: 
+1. **Uploader Initialization (The Host)**:
    - The Uploader opens the app. Our `WebRTCProvider` initializes a new `PeerJS` instance.
    - The browser reaches out to the PeerJS signaling server to generate a unique UUID (the `peerId`).
-   - The Uploader creates a random 6-character room code (e.g., `A4X9B2`) and saves it to the `channels` table in Supabase, mapping the 6-character code to their massive `peerId`.
+   - The Uploader creates a random 6-character room code (e.g., `A4X9B2`) via the `POST /api/create` route. The backend saves this mapping to Redis (production) or an in-memory Map (development), with a configurable TTL.
+   - Simultaneously, the room is persisted to the **Prisma/SQLite database** for transfer history tracking.
 
 2. **Downloader Initialization (The Client)**:
    - The receiver enters the short code `A4X9B2`.

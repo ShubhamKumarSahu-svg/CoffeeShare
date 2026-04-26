@@ -1,6 +1,6 @@
-# FilePizza File Transfer Protocol
+# CoffeeShare File Transfer Protocol
 
-This document explains the message-based protocol that FilePizza uses to
+This document explains the message-based protocol that CoffeeShare uses to
 transfer files directly between browsers over a WebRTC data channel.  It
 covers the complete conversation required to build either an uploader or a
 downloader and includes examples for common scenarios.
@@ -10,7 +10,7 @@ downloader and includes examples for common scenarios.
 ```mermaid
 flowchart LR
     Uploader -- WebRTC / PeerJS --> Downloader
-    Uploader -- REST --> Server[(FilePizza Server)]
+    Uploader -- REST --> Server[(CoffeeShare Server)]
     Downloader -- REST --> Server
     Server -- signalling / slug --> Uploader
     Server -- signalling / slug --> Downloader
@@ -208,5 +208,5 @@ Done
 ---
 
 With these message definitions and sequences you can implement a compatible
-uploader or downloader for FilePizza or adapt the protocol for other
+uploader or downloader for CoffeeShare or adapt the protocol for other
 applications.

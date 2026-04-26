@@ -24,7 +24,12 @@ Typography is the most critical aspect of the UI.
 *   **Staggered Entrance (`StaggerText.tsx`)**: We don't just fade text in. We use `AnimeJS` to animate the opacity and translation of text on a per-character or per-word basis (`anime.stagger`).
     *   *Bug fix note*: The StaggerText component was heavily optimized to group characters into `whitespace-nowrap` word-spans. This prevents ugly line-breaks in the middle of a word when animating.
 
-## 4.4 Interaction Physics (`Framer Motion`)
+## 4.4 Interaction Physics
 Nothing in CoffeeShare "snaps" into place linearly.
-*   **Spring Physics**: When hovering over the DropZone or clicking a button, the `scale` value changes using Framer Motion's spring physics (`transition={{ type: "spring", stiffness: 300, damping: 20 }}`). This gives the elements a tactile, bouncy, satisfying weight.
-*   **Hover States**: Buttons don't just change color. They often trigger micro-interactions (e.g., the spinning `FolderSync` icon, or the 3D rotation of the Coffee Cup logo).
+*   **Framer Motion (Landing Page)**: The landing page utilizes Framer Motion's spring physics (`transition={{ type: "spring", stiffness: 300, damping: 20 }}`) to give hero elements a tactile, satisfying entrance.
+*   **Pure CSS Transitions (In-Game)**: To maximize performance and prevent dropped frames during heavy WebRTC CPU loads, all multiplayer games were stripped of Framer Motion. They rely entirely on high-performance, hardware-accelerated CSS `transform` and `opacity` transitions (`transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]`).
+
+## 4.5 The Monochrome Design System (Games)
+While the landing page uses vibrant gradients and glassmorphism, the `GameHub` employs a strict, distraction-free **Monochrome Design System**.
+* **Palette**: Restricted strictly to `white`, `stone-800`, `stone-900`, and `black`.
+* **Purpose**: This high-contrast, minimalist aesthetic ensures that gameplay remains incredibly smooth and legible, prioritizing the core file transfer over flashy animations while still feeling ultra-premium.

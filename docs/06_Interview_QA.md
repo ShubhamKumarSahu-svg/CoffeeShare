@@ -5,7 +5,7 @@ This document is the ultimate cheat sheet for a technical interview regarding Co
 ## Q1: "Explain the architecture of your application. Why didn't you just use an S3 bucket?"
 **Answer**: "CoffeeShare was built to solve the privacy and bottleneck issues of centralized storage. If I used S3, the user would have to upload the file to AWS (Upload Bandwidth), wait, and then the receiver would download it (Download Bandwidth). Furthermore, it requires storing user data on a third-party server, raising privacy concerns and incurring massive AWS egress costs for me.
 
-Instead, I built a pure Serverless WebRTC architecture. I only use a server (Supabase) for the initial 5-second signaling handshake to exchange SDP tokens. Once connected, a secure, end-to-end encrypted tunnel opens directly between the two browsers. The file streams directly from Device A to Device B. Zero storage costs, zero privacy risks, and infinite scalability."
+Instead, I built a pure Serverless WebRTC architecture. I only use a fast Key-Value store (Redis or In-Memory Maps) for the initial 5-second signaling handshake to exchange SDP tokens. Once connected, a secure, end-to-end encrypted tunnel opens directly between the two browsers. The file streams directly from Device A to Device B. Zero storage costs, zero privacy risks, and infinite scalability."
 
 ## Q2: "How did you handle NAT Traversal and firewalls?"
 **Answer**: "WebRTC relies on the ICE protocol. Most consumer networks work fine with a simple STUN server (which just echoes back the user's public IP for UDP hole punching). However, for corporate networks with Symmetric NATs, hole punching fails. 
@@ -24,8 +24,8 @@ On the receiver side, I leverage the modern `FileSystem Access API`. I prompt th
 
 ## Q5: "Walk me through your UI/UX philosophy for this project."
 **Answer**: "I wanted CoffeeShare to feel like a premium, enterprise-grade SaaS product rather than a generic utility. 
-I implemented a strict Glassmorphism design system using Tailwind—combining deep background blurs (`backdrop-blur-3xl`) with translucent borders and inner shadows to create optical depth. 
-I completely avoided static backgrounds, opting for animated, massive CSS mesh gradients that slowly shift behind the UI. Finally, I used Framer Motion's spring physics for all interactions (buttons, dropzones, modals) so that the application feels weighty, tactile, and extremely responsive."
+For the main interface, I implemented a strict Glassmorphism design system using Tailwind—combining deep background blurs (`backdrop-blur-3xl`) with animated CSS mesh gradients.
+However, for the Game Hub, I made a conscious performance decision to drop all Framer Motion physics and switch to a pure CSS **Monochrome Design System**. This high-contrast (white and stone-900) aesthetic ensures that rendering the UI never competes with the WebRTC file transfer engine for CPU threads, keeping the core feature blazing fast while still feeling ultra-premium."
 
 ## Q6: "If you had 3 more months to work on this, what would you add?"
 **Answer**: 

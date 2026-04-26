@@ -21,6 +21,7 @@ import SubtitleText from '../components/SubtitleText'
 import TitleText from '../components/TitleText'
 import UploadFileList from '../components/UploadFileList'
 import Uploader from '../components/Uploader'
+import TransferHistory from '../components/TransferHistory'
 import WebRTCPeerProvider from '../components/WebRTCProvider'
 import Wordmark from '../components/Wordmark'
 import { getFileName } from '../fs'
@@ -344,6 +345,7 @@ export default function UploadPage(): JSX.Element {
           </motion.div>
         )}
       </AnimatePresence>
+      <TransferHistory />
     </PageWrapper>
   )
 }

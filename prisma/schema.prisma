@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ── Rooms (sharing sessions) ──────────────────────────────────
+model Room {
+  id          String   @id @default(cuid())
+  roomCode    String   @unique
+  hostPeerId  String
+  createdAt   DateTime @default(now())
+  closedAt    DateTime?
+
+  participants RoomParticipant[]
+  transfers    Transfer[]
+}
+
+// ── Room participants ─────────────────────────────────────────
+model RoomParticipant {
+  id        String   @id @default(cuid())
+  roomId    String
+  peerId    String
+  role      String   // 'uploader' | 'downloader'
+  joinedAt  DateTime @default(now())
+  leftAt    DateTime?
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([peerId])
+}
+
+// ── File transfers ────────────────────────────────────────────
+model Transfer {
+  id               String   @id @default(cuid())
+  roomId           String
+  fileName         String
+  fileSize         Int      // bytes
+  fileType         String   // MIME type
+  senderPeerId     String
+  receiverPeerId   String?
+  status           String   @default("pending") // pending | active | completed | failed
+  startedAt        DateTime @default(now())
+  completedAt      DateTime?
+  durationMs       Int?
+  bytesTransferred Int      @default(0)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([status])
+  @@index([startedAt])
+}
+
+// ── Analytics events ──────────────────────────────────────────
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  eventType String   // room_created | transfer_start | transfer_complete | peer_joined | peer_left
+  peerId    String?
+  roomId    String?
+  metadata  String?  // JSON string for extra data
+  createdAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([createdAt])
+}

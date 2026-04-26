@@ -11,3 +11,6 @@ generate_history.js
 .claude
 .cursorrules
 shubhamkumarsahu.pdf
+/src/generated/prisma
+prisma/dev.db
+prisma/dev.db-journal

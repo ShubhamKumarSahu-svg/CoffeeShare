@@ -154,3 +154,4 @@ See [Chapter 7: DBMS Architecture](./07_DBMS_Architecture.md) for the full schem
 <!-- . -->
 <!-- . -->
 <!-- . -->
+<!-- . -->

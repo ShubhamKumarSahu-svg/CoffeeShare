@@ -89,3 +89,4 @@ See `src/utils/crypto.ts` for the full implementation: `generateCryptoKey()`, `e
 In the next chapter, we will explore exactly what is pushed through this encrypted pipe and how we manage memory during a 50GB file transfer.
 <!-- . -->
 <!-- . -->
+<!-- . -->

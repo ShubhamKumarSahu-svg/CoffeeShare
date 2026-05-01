@@ -64,3 +64,4 @@ The audio/video streams are encrypted via SRTP (Secure Real-time Transport Proto
 4. **Progressive Web App (PWA)**: Adding a service worker and manifest for offline-capable access and "Install to Home Screen" functionality.
 <!-- . -->
 <!-- . -->
+<!-- . -->

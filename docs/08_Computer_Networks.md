@@ -48,3 +48,4 @@ There are 4 types of NAT, and CoffeeShare must traverse all of them:
     *   **The TURN Solution**: CoffeeShare intercepts this failure and falls back to our **Metered.ca TURN server**. The TURN server has a static, public IP. Both peers connect to the TURN server, and the TURN server simply relays the encrypted UDP packets between them. This guarantees connectivity.
 <!-- . -->
 <!-- . -->
+<!-- . -->

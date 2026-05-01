@@ -50,3 +50,4 @@ Because CoffeeShare sends multiple things over the exact same WebRTC Data Channe
 This efficient multiplexing ensures that chat and games can run smoothly and simultaneously without corrupting the file transfer stream.
 <!-- . -->
 <!-- . -->
+<!-- . -->

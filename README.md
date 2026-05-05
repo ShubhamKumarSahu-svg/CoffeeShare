@@ -146,7 +146,11 @@ CoffeeShare uses centralized semantic tokens in `src/styles.css`.
 - Surfaces: `.surface`, `.panel`, `.bg-card`, `.bg-elevated`
 - Text semantics: `.text-primary`, `.text-secondary`, `.text-muted`, `.text-brand`
 - Layout accents: `.nav-pill`, `.mesh-overlay`, `.noise-overlay`
+## 📚 References
 
+1. A Peer-To-Peer File Sharing System Using WebRTC And WebSocket  
+   Available at: https://www.researchgate.net/publication/370033514_A_Peer-To-Peer_File_Sharing_System_Using_Webrtc_And_WebSocket
+   
 ## 📝 License
 BSD-3-Clause License
 
